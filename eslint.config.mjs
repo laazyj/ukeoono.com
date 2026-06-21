@@ -16,6 +16,7 @@ export default defineConfig(
           allowDefaultProject: [
             "eslint.config.mjs",
             "packages/site/eleventy.config.js",
+            "packages/site/_data/*.js",
             "packages/cdk/scripts/*.mjs",
           ],
         },

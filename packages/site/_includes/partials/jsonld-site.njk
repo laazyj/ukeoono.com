@@ -1,0 +1,52 @@
+{% set ogImage = site.url + site.defaultOgImage %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "{{ site.url }}/#website",
+      "url": "{{ site.url }}/",
+      "name": {{ site.title | dump | safe }},
+      "description": {{ site.description | dump | safe }},
+      "inLanguage": "{{ site.language }}",
+      "publisher": { "@id": "{{ site.author.id }}" }
+    },
+    {
+      "@type": ["Organization", "MusicGroup"],
+      "@id": "{{ site.author.id }}",
+      "name": {{ site.author.name | dump | safe }},
+      "url": "{{ site.url }}/",
+      "description": {{ site.description | dump | safe }},
+      "areaServed": "Edinburgh, Scotland",
+      "sameAs": {{ [site.social.instagram] | compact | dump | safe }}
+    }{% for p in site.team %},
+    {{ p | personNode | dump | safe }}{% endfor %}{% for e in eventList %},
+    {
+      "@type": "Event",
+      "@id": "{{ site.url }}/#gig-{{ e.startDate }}",
+      "name": {{ (site.author.name + " — " + site.show.title) | dump | safe }},
+      "description": {{ site.show.blurb | dump | safe }},
+      "startDate": "{{ e.startDate }}",
+      "eventStatus": "https://schema.org/EventScheduled",
+      "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+      "isAccessibleForFree": true,
+      "image": [{{ ogImage | dump | safe }}],
+      "inLanguage": "{{ site.language }}",
+      "organizer": { "@id": "{{ site.author.id }}" },
+      "performer": { "@id": "{{ site.author.id }}" },
+      "superEvent": {
+        "@type": "Festival",
+        "name": {{ site.festival.name | dump | safe }}{% if site.festival.url %},
+        "url": {{ site.festival.url | dump | safe }}{% endif %}
+      },
+      "location": {
+        "@type": "Place",
+        "name": {{ e.venue | dump | safe }}{% if e.address %},
+        "address": {{ e.address | dump | safe }}{% endif %}{% if e.mapUrl %},
+        "hasMap": {{ e.mapUrl | dump | safe }}{% endif %}
+      }
+    }{% endfor %}
+  ]
+}
+</script>

@@ -1,0 +1,57 @@
+---
+layout: layouts/base.njk
+title: ""
+---
+{% set f = site.festival %}
+{% set s = site.social %}
+
+<main class="flyer">
+
+  <section class="hero">
+    <p class="hero-eyebrow">{{ f.name }}</p>
+    <h1 class="hero-title">{{ site.title }}</h1>
+    <p class="hero-show">{{ site.show.title }}</p>
+    <p class="hero-blurb">{{ site.show.blurb }}</p>
+    <p class="hero-meta"><span class="tag tag--free">Free entry</span> {{ site.monthLabel }} · Edinburgh</p>
+  </section>
+
+  <section class="dates" id="dates" aria-labelledby="dates-head">
+    <h2 class="section-head" id="dates-head">{{ site.monthLabel }} dates</h2>
+
+    {% for v in site.lineup %}
+    <article class="venue">
+      <h3 class="venue-name">
+        {% if v.mapUrl %}<a href="{{ v.mapUrl }}" rel="external">{{ v.venue }}</a>{% else %}{{ v.venue }}{% endif %}
+      </h3>
+      {% if v.address %}<p class="venue-address">{{ v.address }}</p>{% endif %}
+      <ul class="session-list">
+        {% for sess in v.sessions %}
+        <li class="session">
+          <span class="session-day">{{ sess.day }}</span>
+          <span class="session-dates">{{ sess.dates | join(", ") }}</span>
+          <span class="session-time">{{ sess.time }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </article>
+    {% endfor %}
+  </section>
+
+  <section class="follow" id="follow" aria-labelledby="follow-head">
+    <h2 class="section-head" id="follow-head">Stay in the loop</h2>
+    <p>
+      Set times and surprise extras can move. {% if s.instagram %}Instagram has the
+      latest.{% else %}Instagram (coming soon) will have the latest.{% endif %}
+    </p>
+    <p class="follow-row">
+      {% if s.instagram %}<a class="btn btn--primary" href="{{ s.instagram }}" rel="external">Follow on Instagram</a>{% else %}<span class="btn btn--ghost is-disabled" aria-disabled="true">Instagram — coming soon</span>{% endif %}
+    </p>
+    {% if site.qrTarget %}
+    <p class="qr"><img src="{{ '/qr.png' | rel }}" alt="Scan for {{ site.title }} on the web" width="160" height="160" /></p>
+    {% endif %}
+    <p class="contact-line">
+      Bookings or hellos? {% include "partials/email-link.njk" %}
+    </p>
+  </section>
+
+</main>
