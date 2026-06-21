@@ -1,0 +1,79 @@
+name: pr
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  AWS_REGION: eu-west-2
+
+concurrency:
+  group: pr-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run verify
+
+  cdk-diff:
+    name: cdk diff
+    runs-on: ubuntu-latest
+    # Skip the AWS-touching job for PRs that can't assume the deploy role:
+    #   - Fork PRs run under the fork's OIDC namespace.
+    #   - Dependabot PRs don't receive repo Actions secrets, so the role ARN
+    #     is empty and configure-aws-credentials fails.
+    # The verify job still runs in both cases.
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.user.login != 'dependabot[bot]'
+    needs: verify
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+    env:
+      ALERT_EMAIL: ${{ secrets.ALERT_EMAIL }}
+      GA_MEASUREMENT_ID: ${{ vars.GA_MEASUREMENT_ID }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b # v6.2.0
+        id: aws
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: cdk synth
+        env:
+          CDK_DEFAULT_ACCOUNT: ${{ steps.aws.outputs.aws-account-id }}
+          CDK_DEFAULT_REGION: ${{ env.AWS_REGION }}
+        run: npm run cdk:synth
+
+      - name: cdk diff
+        uses: corymhall/cdk-diff-action@ad67041313333f7f2bd26b33f18fb134610a971e # v2.0.9
+        with:
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          cdkOutDir: packages/cdk/cdk.out
+          failOnDestructiveChanges: false

@@ -1,0 +1,37 @@
+# gitleaks config for uke-o-ono.com.
+#
+# Extends the upstream default ruleset and allowlists a small set of
+# already-public values that would otherwise trigger generic-secret rules:
+#
+#   - DNS verification tokens and DKIM/SPF strings. These live in TXT/CNAME
+#     records on a public domain — anyone can `dig` them. They have no use
+#     to an attacker.
+#
+# Anything outside this allowlist is still scanned with the full default ruleset.
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Known-public DNS, mail, and ownership tokens"
+paths = [
+  '''packages/cdk/src/zone-records\.ts''',
+  '''packages/cdk/test/__snapshots__/UkeOOnoDnsStack\.json''',
+  '''packages/cdk/dist/zone-records\.js''',
+]
+
+[[allowlists]]
+description = """
+CDK asset-bundle SHA-256 hashes (S3Key) inside CloudFormation snapshot tests.
+These are content-addressable identifiers for synthesized custom-resource
+Lambda zips in the CDK bootstrap bucket — not secrets. Scoped to the snapshot
+directory and to the exact 64-hex-char shape so a real secret accidentally
+committed into a snapshot is still detected.
+"""
+condition = "AND"
+paths = [
+  '''packages/cdk/test/__snapshots__/.*\.json''',
+]
+regexes = [
+  '''^[a-f0-9]{64}\.(zip|json|txt)$''',
+]

@@ -1,0 +1,58 @@
+name: deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AWS_REGION: eu-west-2
+
+# Queue concurrent deploys (don't cancel) so a quick second push doesn't abort
+# an in-flight CDK run mid-stack.
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: deploy
+    runs-on: ubuntu-latest
+    env:
+      ALERT_EMAIL: ${{ secrets.ALERT_EMAIL }}
+      GA_MEASUREMENT_ID: ${{ vars.GA_MEASUREMENT_ID }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run verify
+
+      - uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b # v6.2.0
+        id: aws
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # cdk:deploy depends on site:build via Nx, and GITHUB_SHA/GA_MEASUREMENT_ID
+      # are declared cache inputs — so the site rebuilds when this commit changes
+      # and the build-sha meta tag reflects this exact commit.
+      - name: cdk deploy
+        env:
+          CDK_DEFAULT_ACCOUNT: ${{ steps.aws.outputs.aws-account-id }}
+          CDK_DEFAULT_REGION: ${{ env.AWS_REGION }}
+        run: npm run cdk:deploy -- --require-approval never
+
+      - name: smoke test
+        env:
+          EXPECTED_SHA: ${{ github.sha }}
+        run: npm run site:smoke
