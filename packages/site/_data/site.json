@@ -1,0 +1,53 @@
+{
+  "title": "Uke O Ono",
+  "tagline": "Ballads & Bangers",
+  "description": "Uke O Ono bring Ballads & Bangers to PBH's Free Fringe 2026: an Edinburgh ukulele band playing every kind of singalong, free, all through August.",
+  "url": "https://uke-o-ono.com",
+  "author": {
+    "id": "https://uke-o-ono.com/#org",
+    "name": "Uke O Ono",
+    "email": "hello@uke-o-ono.com"
+  },
+  "language": "en-GB",
+  "defaultOgImage": "/og-image.png",
+  "festival": {
+    "name": "PBH's Free Fringe 2026",
+    "shortName": "Free Fringe 2026",
+    "url": "https://www.freefringe.org.uk/"
+  },
+  "show": {
+    "title": "Ballads & Bangers",
+    "blurb": "Tender ballads, daft bangers, and a roomful of ukuleles. Free in, no ticket, just turn up."
+  },
+  "month": "2026-08",
+  "monthLabel": "August 2026",
+  "lineup": [
+    {
+      "venue": "Bowlers Rest",
+      "address": "TBC — venue address",
+      "mapUrl": "",
+      "sessions": [
+        { "day": "Saturdays", "dates": [8, 22, 29], "time": "16:45" },
+        { "day": "Thursdays", "dates": [13, 20, 27], "time": "19:15" }
+      ]
+    },
+    {
+      "venue": "Fingers Piano Bar",
+      "address": "TBC — venue address",
+      "mapUrl": "",
+      "sessions": [{ "day": "Mondays", "dates": [10, 17, 24], "time": "21:00" }]
+    }
+  ],
+  "social": {
+    "instagram": ""
+  },
+  "qrTarget": "",
+  "team": [
+    {
+      "name": "Jason Duffett",
+      "url": "https://jasonduffett.net/",
+      "roles": ["builder", "maintainer"],
+      "sameAs": ["https://github.com/laazyj", "https://www.linkedin.com/in/jasonduffett/"]
+    }
+  ]
+}

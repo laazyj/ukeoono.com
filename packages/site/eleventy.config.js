@@ -1,0 +1,72 @@
+import { Buffer } from "node:buffer";
+import process from "node:process";
+
+export default function (eleventyConfig) {
+  eleventyConfig.amendLibrary("md", (md) => {
+    md.set({ typographer: true });
+    md.enable(["replacements", "smartquotes"]);
+  });
+
+  eleventyConfig.addPassthroughCopy({ assets: "assets" });
+  eleventyConfig.addPassthroughCopy({ static: "/" });
+
+  eleventyConfig.addGlobalData("currentYear", () => new Date().getFullYear());
+  eleventyConfig.addGlobalData("analytics", () => ({
+    measurementId: process.env.GA_MEASUREMENT_ID || null,
+  }));
+  eleventyConfig.addGlobalData("build", () => ({
+    sha: process.env.GITHUB_SHA || "dev",
+  }));
+
+  // Convert a root-absolute path ("/assets/x.css") into a path relative to the
+  // current page. Lets the site render under any URL prefix without a
+  // build-time pathPrefix flag.
+  eleventyConfig.addFilter("rel", function (target) {
+    if (typeof target !== "string" || !target.startsWith("/")) return target;
+    const pageUrl =
+      (this.page && this.page.url) || (this.ctx && this.ctx.page && this.ctx.page.url) || "/";
+    const depth = pageUrl.split("/").filter(Boolean).length;
+    const prefix = depth === 0 ? "./" : "../".repeat(depth);
+    return prefix + target.replace(/^\//, "");
+  });
+
+  // Zero-pad a day-of-month to two digits ("8" -> "08"). Used to build
+  // schema.org Event start dates from the gig data.
+  eleventyConfig.addFilter("pad2", (n) => String(n).padStart(2, "0"));
+
+  // Base64-encode a string. Used to keep the contact email out of the page
+  // source as scrapeable plaintext — the email-link partial ships the encoded
+  // address and the decoder in base.njk turns it back into a mailto client-side.
+  eleventyConfig.addFilter("base64", (s) => Buffer.from(String(s), "utf8").toString("base64"));
+
+  // Drop falsy entries. Used to build the JSON-LD sameAs list from the
+  // (optionally empty) social links in site.json.
+  eleventyConfig.addFilter("compact", (arr) => (Array.isArray(arr) ? arr.filter(Boolean) : arr));
+
+  // Site-credit helpers. site.json `team` is a list of people, each with a
+  // `roles` list ("builder" | "maintainer"). These drive the machine-readable
+  // attribution (JSON-LD Person nodes, rel=author, humans.txt).
+  eleventyConfig.addFilter("withRole", (people, role) =>
+    Array.isArray(people) ? people.filter((p) => (p.roles || []).includes(role)) : [],
+  );
+  eleventyConfig.addFilter("idRefs", (people) =>
+    (Array.isArray(people) ? people : []).map((p) => ({ "@id": p.url })),
+  );
+  eleventyConfig.addFilter("personNode", (p) => {
+    const node = { "@type": "Person", "@id": p.url, name: p.name, url: p.url };
+    if (p.sameAs && p.sameAs.length) node.sameAs = p.sameAs;
+    return node;
+  });
+
+  return {
+    dir: {
+      input: "content",
+      output: "dist",
+      includes: "../_includes",
+      data: "../_data",
+    },
+    templateFormats: ["njk", "md", "html"],
+    markdownTemplateEngine: "njk",
+    htmlTemplateEngine: "njk",
+  };
+}

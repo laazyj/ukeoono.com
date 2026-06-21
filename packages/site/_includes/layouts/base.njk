@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="{{ site.language }}">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#d92b1c" />
+  {% set metaTitle = title %}
+  <title>{% if metaTitle %}{{ metaTitle }} — {{ site.title }}{% else %}{{ site.title }} — {{ site.tagline }}{% endif %}</title>
+  <meta name="description" content="{{ summary or site.description }}" />
+  <meta name="author" content="{{ site.author.name }}" />
+  {% for p in site.team %}{% if "builder" in p.roles or "maintainer" in p.roles %}<link rel="author" href="{{ p.url }}" />
+  {% endif %}{% endfor %}<meta name="build-sha" content="{{ build.sha }}" />
+  <link rel="canonical" href="{{ site.url }}{{ page.url }}" />
+  <link rel="icon" href="{{ '/favicon.ico' | rel }}" sizes="32x32" />
+  <link rel="icon" href="{{ '/favicon.svg' | rel }}" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="{{ '/apple-touch-icon.png' | rel }}" />
+  <link rel="manifest" href="{{ '/site.webmanifest' | rel }}" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" />
+  <link rel="stylesheet" href="{{ '/assets/styles.css' | rel }}" />
+  <meta property="og:title" content="{% if metaTitle %}{{ metaTitle }}{% else %}{{ site.title }}{% endif %}" />
+  <meta property="og:description" content="{{ summary or site.description }}" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="{{ site.url }}{{ page.url }}" />
+  <meta property="og:site_name" content="{{ site.title }}" />
+  <meta property="og:locale" content="en_GB" />
+  {% if site.defaultOgImage %}
+  <meta property="og:image" content="{{ site.url }}{{ site.defaultOgImage }}" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="{{ site.url }}{{ site.defaultOgImage }}" />
+  {% else %}
+  <meta name="twitter:card" content="summary" />
+  {% endif %}
+  <meta name="twitter:title" content="{% if metaTitle %}{{ metaTitle }}{% else %}{{ site.title }}{% endif %}" />
+  <meta name="twitter:description" content="{{ summary or site.description }}" />
+  {% include "partials/jsonld-site.njk" %}
+  {% include "partials/analytics.njk" %}
+</head>
+<body>
+  <div class="wrap">
+
+    <header class="site">
+      <a class="brand" href="{{ '/' | rel }}" aria-label="Uke O Ono — home">
+        <span class="brand-name">{{ site.title }}</span>
+      </a>
+    </header>
+
+    {{ content | safe }}
+
+    <footer class="site">
+      <span>&copy; {{ currentYear }} {{ site.author.name }} · Edinburgh</span>
+      <span class="footer-links">
+        {% if site.social.instagram %}<a href="{{ site.social.instagram }}" rel="external">Instagram</a> · {% endif %}
+        <a href="{{ '/privacy/' | rel }}">Privacy</a>
+      </span>
+    </footer>
+
+  </div>
+  {% include "partials/consent-banner.njk" %}
+  <script>
+    // Reveal obfuscated email links. The address is emitted here as a base64
+    // string literal (never as plaintext in the markup) and decoded at run
+    // time, so scrapers reading the HTML never see it. It is sourced from this
+    // server-rendered literal rather than a DOM attribute, so the value never
+    // originates from the DOM and never reaches href as tainted input.
+    (function () {
+      var addr = atob("{{ site.author.email | base64 }}");
+      var links = document.querySelectorAll("a.email-link");
+      for (var i = 0; i < links.length; i++) {
+        links[i].setAttribute("href", "mailto:" + addr);
+        links[i].textContent = addr;
+      }
+    })();
+  </script>
+</body>
+</html>
