@@ -1,0 +1,55 @@
+{
+  "name": "uke-o-ono",
+  "description": "Monorepo for uke-o-ono.com — infrastructure (CDK) and Fringe 2026 flyer site.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "nx run-many -t typecheck",
+    "test": "nx run-many -t test",
+    "test:update": "nx run-many -t test:update",
+    "build": "nx run-many -t build",
+    "clean": "nx run-many -t clean",
+    "cdk:synth": "nx run @uke-o-ono/cdk:synth",
+    "cdk:diff": "nx run @uke-o-ono/cdk:diff",
+    "cdk:deploy": "nx run @uke-o-ono/cdk:deploy",
+    "cdk:deploy:stack": "nx run @uke-o-ono/cdk:deploy:stack",
+    "site:smoke": "nx run @uke-o-ono/cdk:smoke",
+    "site:build": "nx run @uke-o-ono/site:build",
+    "site:start": "nx run @uke-o-ono/site:start",
+    "site:clean": "nx run @uke-o-ono/site:clean",
+    "verify": "npm run format:check && npm run build && npm run lint && npm run test",
+    "prepare": "husky"
+  },
+  "author": "Jason Duffett",
+  "license": "MIT",
+  "workspaces": [
+    "packages/*"
+  ],
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@nx/js": "^23.0.0",
+    "@types/node": "^26.0.0",
+    "eslint": "^10.5.0",
+    "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
+    "nx": "^23.0.0",
+    "prettier": "^3.8.4",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.61.1"
+  },
+  "overrides": {
+    "form-data": "^4.0.6",
+    "tmp": "^0.2.7",
+    "ws": "^8.21.0",
+    "@11ty/eleventy": {
+      "js-yaml": "^4.2.0",
+      "gray-matter": {
+        "js-yaml": "^3.14.1"
+      }
+    }
+  }
+}

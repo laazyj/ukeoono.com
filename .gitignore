@@ -1,0 +1,37 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Dependency directories
+node_modules/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# dotenv environment variable files
+.env
+.env.*
+!.env.example
+
+# Build output
+dist
+
+# Nx cache
+.nx/cache
+.nx/workspace-data
+
+# AWS CDK
+cdk.out/
+
+# Playwright
+.playwright-mcp
+
+# macOS
+.DS_Store
