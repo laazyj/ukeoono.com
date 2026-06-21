@@ -4,8 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#d92b1c" />
-  {% set metaTitle = title %}
-  <title>{% if metaTitle %}{{ metaTitle }} — {{ site.title }}{% else %}{{ site.title }} — {{ site.tagline }}{% endif %}</title>
+  <title>{% if title %}{{ title }} — {{ site.title }}{% else %}{{ site.title }} — {{ site.tagline }}{% endif %}</title>
   <meta name="description" content="{{ summary or site.description }}" />
   <meta name="author" content="{{ site.author.name }}" />
   {% for p in site.team %}{% if "builder" in p.roles or "maintainer" in p.roles %}<link rel="author" href="{{ p.url }}" />
@@ -19,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" />
   <link rel="stylesheet" href="{{ '/assets/styles.css' | rel }}" />
-  <meta property="og:title" content="{% if metaTitle %}{{ metaTitle }}{% else %}{{ site.title }}{% endif %}" />
+  <meta property="og:title" content="{% if title %}{{ title }}{% else %}{{ site.title }}{% endif %}" />
   <meta property="og:description" content="{{ summary or site.description }}" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="{{ site.url }}{{ page.url }}" />
@@ -34,7 +33,7 @@
   {% else %}
   <meta name="twitter:card" content="summary" />
   {% endif %}
-  <meta name="twitter:title" content="{% if metaTitle %}{{ metaTitle }}{% else %}{{ site.title }}{% endif %}" />
+  <meta name="twitter:title" content="{% if title %}{{ title }}{% else %}{{ site.title }}{% endif %}" />
   <meta name="twitter:description" content="{{ summary or site.description }}" />
   {% include "partials/jsonld-site.njk" %}
   {% include "partials/analytics.njk" %}
@@ -51,7 +50,7 @@
     {{ content | safe }}
 
     <footer class="site">
-      <span>&copy; {{ currentYear }} {{ site.author.name }} · Edinburgh</span>
+      <span>&copy; {{ currentYear }} {{ site.author.name }} · {{ site.city }}</span>
       <span class="footer-links">
         {% if site.social.instagram %}<a href="{{ site.social.instagram }}" rel="external">Instagram</a> · {% endif %}
         <a href="{{ '/privacy/' | rel }}">Privacy</a>
