@@ -13,6 +13,7 @@
   --ink: #16110d;
   --ink-soft: #2e2820;
   --measure: 60rem;
+  --measure-home: 72rem;
   color-scheme: light;
 }
 
@@ -22,6 +23,10 @@
 html {
   font-size: 17px;
   -webkit-text-size-adjust: 100%;
+  /* body sets overflow-x: hidden, which stops the body background from
+     propagating to the canvas — without this the scrollbar gutter shows the
+     default grey. Paint the root red so the gutter matches the field. */
+  background: var(--red);
 }
 body {
   margin: 0;
@@ -34,7 +39,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Paper grain + a faint vignette so the flat red reads like printed stock. */
+/* Faint vignette so the flat red reads like printed stock (sits behind content). */
 body::before {
   content: "";
   position: fixed;
@@ -45,15 +50,19 @@ body::before {
     radial-gradient(120% 90% at 50% -10%, rgba(255, 240, 200, 0.16), transparent 60%),
     radial-gradient(140% 120% at 50% 120%, rgba(80, 10, 8, 0.4), transparent 55%);
 }
+/* Scratched-stock grunge laid OVER everything (content included) and multiplied
+   in, so the whole poster — red field, cream ink, ticket — picks up the same
+   rust and scuffs. Tuned subtle; the headline erosion below does the heavy work. */
 body::after {
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 0;
+  z-index: 4;
   opacity: 0.5;
   mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  background: url("/grunge.png") repeat;
+  background-size: 360px;
 }
 
 .wrap {
@@ -62,6 +71,10 @@ body::after {
   max-width: var(--measure);
   margin: 0 auto;
   padding: 1.5rem 1.4rem 3rem;
+}
+/* The flyer home runs wider to make room for the photo column. */
+.wrap:has(.flyer) {
+  max-width: var(--measure-home);
 }
 
 a {
@@ -120,11 +133,11 @@ footer.site {
 .rail {
   display: none;
 }
-@media (min-width: 1180px) {
+@media (min-width: 1280px) {
   .rail {
     display: block;
     position: fixed;
-    left: max(0.5rem, calc((100vw - var(--measure)) / 2 - 3.2rem));
+    left: max(0.5rem, calc((100vw - var(--measure-home)) / 2 - 3.2rem));
     top: 0;
     bottom: 0;
     z-index: 1;
@@ -148,10 +161,84 @@ footer.site {
   }
 }
 
+/* ------------------------------ Flyer grid + photos ------------------ */
+/* Mobile: single column, photos drop in as a band right under the hero
+   (DOM order: hero, photos, dates, follow). Desktop: a two-column poster
+   with the B&W collage running full-height down the right, like the flyer. */
+.flyer-grid {
+  display: grid;
+}
+.photos {
+  position: relative;
+  margin: 0.5rem 0 1.5rem;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0.4rem 0.4rem 0 rgba(22, 17, 13, 0.4);
+}
+.photos img {
+  display: block;
+  width: 100%;
+  height: 210px;
+  object-fit: cover;
+  /* Bias to the top row of the collage (the singing/playing faces) — the
+     mid-rows crop awkwardly into torsos and hands at band height. */
+  object-position: center 6%;
+  filter: grayscale(1) contrast(1.04);
+}
+/* A whisper of red so the photos sit inside the poster rather than on top. */
+.photos::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--red);
+  mix-blend-mode: multiply;
+  opacity: 0.16;
+}
+@media (min-width: 920px) {
+  .flyer-grid {
+    grid-template-columns: minmax(0, 1fr) clamp(232px, 26vw, 300px);
+    grid-template-areas:
+      "hero   photos"
+      "dates  photos"
+      "follow photos";
+    column-gap: 2.2rem;
+    align-items: start;
+  }
+  .hero {
+    grid-area: hero;
+  }
+  .photos {
+    grid-area: photos;
+    align-self: stretch;
+    margin: 1rem 0 0;
+  }
+  .photos img {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    object-position: center;
+  }
+}
+
 /* ------------------------------ Hero --------------------------------- */
 .hero {
+  position: relative;
   padding: 1rem 0 2.5rem;
   animation: rise 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+/* Official PBH's Free Fringe 2026 logo. Its red blob is the same red as the
+   field, so it sits on a small cream sticker card to lift it off. */
+.pbh {
+  float: right;
+  width: 6.2rem;
+  height: 6.2rem;
+  margin: 0 0 0.6rem 1.1rem;
+  background: var(--cream);
+  border-radius: 14px;
+  padding: 7px;
+  object-fit: contain;
+  transform: rotate(-5deg);
+  box-shadow: 0.25rem 0.25rem 0 rgba(22, 17, 13, 0.45);
 }
 .hero-eyebrow {
   display: inline-block;
@@ -167,13 +254,30 @@ footer.site {
 }
 .hero-title {
   font-family: "Anton", sans-serif;
-  font-size: clamp(4rem, 21vw, 12rem);
-  line-height: 0.84;
+  font-size: clamp(3.6rem, 13vw, 9rem);
+  line-height: 0.9;
+  /* The erosion mask clips to the border-box, so the caps must sit inside it;
+     padding keeps the glyph tops/bottoms from being masked away. */
+  padding: 0.1em 0 0.04em;
   text-transform: uppercase;
   letter-spacing: 0.005em;
   margin: 0;
   color: var(--cream);
-  text-shadow: 0.06em 0.06em 0 var(--ink);
+  text-shadow: 0.05em 0.05em 0 var(--ink);
+}
+/* Distress the big display type: a scattered scuff mask eats sparse flecks out
+   of the letters so the field shows through, the way the printed flyer's caps
+   are eroded. Kept to the largest type so body copy stays crisp. The mask only
+   subtracts — with it unsupported the type just renders solid. */
+.hero-title,
+.section-head,
+.venue-name {
+  -webkit-mask-image: url("/erode.png");
+  mask-image: url("/erode.png");
+  -webkit-mask-size: 300px;
+  mask-size: 300px;
+  -webkit-mask-repeat: repeat;
+  mask-repeat: repeat;
 }
 .hero-show {
   font-family: "Anton", sans-serif;
@@ -184,53 +288,39 @@ footer.site {
   color: var(--ink);
 }
 .hero-blurb {
-  max-width: 34rem;
+  max-width: 38rem;
   margin: 1.1rem 0 0;
-  font-size: 1.08rem;
+  font-size: 1.12rem;
+  line-height: 1.5;
   color: var(--cream);
-}
-.hero-meta {
-  display: flex;
-  align-items: center;
-  gap: 1.2rem;
-  margin-top: 1.6rem;
 }
 .hero-when {
   font-family: "Anton", sans-serif;
   text-transform: uppercase;
   font-size: 1.15rem;
-  line-height: 1.05;
-  letter-spacing: 0.04em;
+  line-height: 1.15;
+  letter-spacing: 0.03em;
   color: var(--cream);
+  margin: 1.4rem 0 0;
 }
 
-/* Rotated rubber-stamp "Free entry". */
-.stamp {
-  flex: none;
-  display: grid;
-  place-content: center;
-  text-align: center;
-  width: 5.4rem;
-  height: 5.4rem;
-  border-radius: 50%;
-  border: 3px solid var(--cream);
-  color: var(--cream);
-  transform: rotate(-9deg);
-  line-height: 0.9;
+/* The flyer's black brush swoop, cropped from the poster. Fills the open red
+   under the hero, over toward the photo column. Decorative; desktop only —
+   in the stacked mobile layout there's no empty space for it to fill. */
+.swoop {
+  display: none;
 }
-.stamp b {
-  font-family: "Anton", sans-serif;
-  font-size: 1.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-}
-.stamp i {
-  font-style: normal;
-  text-transform: uppercase;
-  letter-spacing: 0.32em;
-  font-size: 0.62rem;
-  font-weight: 700;
-  padding-left: 0.32em;
+@media (min-width: 920px) {
+  .swoop {
+    display: block;
+    position: absolute;
+    right: 5.5rem;
+    bottom: -3.5rem;
+    width: 22rem;
+    height: 8rem;
+    opacity: 0.38;
+    background: url("/swoop.png") no-repeat right center / contain;
+  }
 }
 
 /* ------------------------------ Section heads ------------------------ */
@@ -359,6 +449,7 @@ footer.site {
   border-radius: 2px;
   text-decoration: none;
   border: 2px solid var(--cream);
+  cursor: pointer;
   transition:
     transform 0.12s ease,
     box-shadow 0.12s ease;
