@@ -7,34 +7,41 @@ title: ""
 
 <main class="flyer">
 
+  <div class="rail" aria-hidden="true"><span>Ballads &amp; Bangers</span></div>
+
   <section class="hero">
     <p class="hero-eyebrow">{{ f.name }}</p>
     <h1 class="hero-title">{{ site.title }}</h1>
     <p class="hero-show">{{ site.show.title }}</p>
     <p class="hero-blurb">{{ site.show.blurb }}</p>
-    <p class="hero-meta"><span class="tag tag--free">Free entry</span> {{ site.monthLabel }} · {{ site.city }}</p>
+    <div class="hero-meta">
+      <span class="stamp" aria-hidden="true"><b>Free</b><i>entry</i></span>
+      <span class="hero-when">{{ site.monthLabel }}<br />{{ site.city }}</span>
+    </div>
   </section>
 
   <section class="dates" id="dates" aria-labelledby="dates-head">
     <h2 class="section-head" id="dates-head">{{ site.monthLabel }} dates</h2>
 
-    {% for v in site.lineup %}
-    <article class="venue">
-      <h3 class="venue-name">
-        {% if v.mapUrl %}<a href="{{ v.mapUrl }}" rel="external">{{ v.venue }}</a>{% else %}{{ v.venue }}{% endif %}
-      </h3>
-      {% if v.address %}<p class="venue-address">{{ v.address }}</p>{% endif %}
-      <ul class="session-list">
-        {% for sess in v.sessions %}
-        <li class="session">
-          <span class="session-day">{{ sess.day }}</span>
-          <span class="session-dates">{{ sess.dates | join(", ") }}</span>
-          <span class="session-time">{{ sess.time }}</span>
-        </li>
-        {% endfor %}
-      </ul>
-    </article>
-    {% endfor %}
+    <div class="ticket">
+      {% for v in site.lineup %}
+      <article class="venue">
+        <h3 class="venue-name">
+          {% if v.mapUrl %}<a href="{{ v.mapUrl }}" rel="external">{{ v.venue }}</a>{% else %}{{ v.venue }}{% endif %}
+        </h3>
+        {% if v.address %}<p class="venue-address">{{ v.address }}</p>{% endif %}
+        <ul class="session-list">
+          {% for sess in v.sessions %}
+          <li class="session">
+            <span class="session-day">{{ sess.day }}</span>
+            <span class="session-dates">{{ sess.dates | join(", ") }}</span>
+            <span class="session-time">{{ sess.time }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+      </article>
+      {% endfor %}
+    </div>
   </section>
 
   <section class="follow" id="follow" aria-labelledby="follow-head">

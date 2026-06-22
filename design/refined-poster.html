@@ -1,0 +1,235 @@
+<!doctype html>
+<!--
+  DESIGN PREVIEW — "Refined poster" (alternative direction for PR review).
+  Standalone, self-contained. Not part of the Eleventy build; it exists only
+  to screenshot alongside the live "Faithful flyer" site. Same content/data.
+-->
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Uke O Ono — Ballads & Bangers (Refined poster preview)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=Oswald:wght@500;600;700&display=swap"
+    />
+    <style>
+      :root {
+        --red: #d62b1f;
+        --red-deep: #a81d14;
+        --cream: #f6efd9;
+        --paper: #fbf7ea;
+        --ink: #1c1813;
+        --ink-soft: #4a4338;
+        --rule: #d9cfae;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        font-size: 17px;
+      }
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: "Fraunces", Georgia, serif;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+      .topbar {
+        height: 8px;
+        background: var(--red);
+      }
+      .wrap {
+        max-width: 46rem;
+        margin: 0 auto;
+        padding: 2.5rem 1.6rem 4rem;
+      }
+      .kicker {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-family: "Oswald", sans-serif;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.22em;
+        font-size: 0.72rem;
+        color: var(--red-deep);
+      }
+      .kicker::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--rule);
+      }
+      h1 {
+        font-family: "Oswald", sans-serif;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: clamp(3.2rem, 13vw, 6.5rem);
+        line-height: 0.95;
+        letter-spacing: 0.01em;
+        margin: 1.4rem 0 0;
+        color: var(--ink);
+      }
+      .show {
+        font-family: "Oswald", sans-serif;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: clamp(1.3rem, 5vw, 2rem);
+        letter-spacing: 0.04em;
+        color: var(--red);
+        margin: 0.5rem 0 0;
+      }
+      .lede {
+        font-size: 1.2rem;
+        max-width: 30rem;
+        margin: 1.3rem 0 0;
+        color: var(--ink-soft);
+        font-style: italic;
+      }
+      .meta {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        margin-top: 1.6rem;
+        font-family: "Oswald", sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-size: 0.9rem;
+      }
+      .tag {
+        border: 1.5px solid var(--red);
+        color: var(--red-deep);
+        border-radius: 999px;
+        padding: 0.25rem 0.8rem;
+        font-weight: 600;
+      }
+      h2 {
+        font-family: "Oswald", sans-serif;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-size: 1.05rem;
+        color: var(--ink-soft);
+        margin: 3.5rem 0 1.4rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--rule);
+      }
+      .venue {
+        margin-bottom: 2.4rem;
+      }
+      .venue h3 {
+        font-family: "Oswald", sans-serif;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 1.6rem;
+        letter-spacing: 0.02em;
+        margin: 0 0 1rem;
+      }
+      .session {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: baseline;
+        gap: 0.2rem 1rem;
+        padding: 0.7rem 0;
+        border-top: 1px solid var(--rule);
+      }
+      .session .when {
+        font-family: "Oswald", sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        font-size: 0.95rem;
+      }
+      .session .when b {
+        font-weight: 700;
+      }
+      .session .when span {
+        color: var(--ink-soft);
+        font-weight: 500;
+      }
+      .session .time {
+        font-family: "Oswald", sans-serif;
+        font-weight: 700;
+        font-size: 1.35rem;
+        color: var(--red);
+        font-variant-numeric: tabular-nums;
+      }
+      .follow {
+        margin-top: 3.5rem;
+        padding-top: 2rem;
+        border-top: 2px solid var(--ink);
+      }
+      .btn {
+        display: inline-block;
+        font-family: "Oswald", sans-serif;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-size: 1rem;
+        padding: 0.7rem 1.6rem;
+        border-radius: 999px;
+        text-decoration: none;
+        margin-top: 1rem;
+        background: var(--red);
+        color: var(--paper);
+        border: 1.5px solid var(--red);
+      }
+      .foot {
+        margin-top: 3rem;
+        font-family: "Oswald", sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-size: 0.75rem;
+        color: var(--ink-soft);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="topbar"></div>
+    <div class="wrap">
+      <p class="kicker">★ PBH's Free Fringe 2026</p>
+      <h1>Uke O Ono</h1>
+      <p class="show">Ballads &amp; Bangers</p>
+      <p class="lede">
+        Tender ballads, daft bangers, and a roomful of ukuleles. Free in, no ticket, just turn up.
+      </p>
+      <p class="meta"><span class="tag">Free entry</span> August 2026 · Edinburgh</p>
+
+      <h2>August 2026 dates</h2>
+
+      <div class="venue">
+        <h3>Bowlers Rest</h3>
+        <div class="session">
+          <span class="when"><b>Saturdays</b> <span>8, 22, 29</span></span
+          ><span class="time">16:45</span>
+        </div>
+        <div class="session">
+          <span class="when"><b>Thursdays</b> <span>13, 20, 27</span></span
+          ><span class="time">19:15</span>
+        </div>
+      </div>
+
+      <div class="venue">
+        <h3>Fingers Piano Bar</h3>
+        <div class="session">
+          <span class="when"><b>Mondays</b> <span>10, 17, 24</span></span
+          ><span class="time">21:00</span>
+        </div>
+      </div>
+
+      <div class="follow">
+        <h2 style="margin-top: 0; border: 0">Stay in the loop</h2>
+        <p style="margin-top: -0.6rem; color: var(--ink-soft)">
+          Set times and surprise extras can move. Instagram (coming soon) will have the latest.
+        </p>
+        <a class="btn" href="#">Follow on Instagram</a>
+      </div>
+
+      <p class="foot">© 2026 Uke O Ono · Edinburgh · Privacy</p>
+    </div>
+  </body>
+</html>
