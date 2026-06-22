@@ -41,17 +41,11 @@ import { outputs } from "@composurecdk/cloudformation";
 import { buildRedirectFunctionCode } from "./redirect-function.js";
 import { ZONE_RECORDS } from "./zone-records.js";
 
-// Pinning the hosted zone's CFN logical ID decouples it from the construct
-// path, so structural refactors (rename build id, regroup components, swap
-// composurecdk versions) never force-replace the live zone. Replacing it
-// would rotate the registrar-facing NS records — the one expensive thing in
-// this stack. Records intentionally get path-derived IDs; recreating them is
-// cheap.
+// Pin the hosted zone's CFN logical ID so structural refactors never
+// force-replace the live zone (which would rotate registrar-facing NS records).
 const HOSTED_ZONE_LOGICAL_ID = "HostedZone";
 
-// 90 days is shorter than the package default of 731 days, but ample audit
-// runway for a flyer site and well below the threshold where stored log
-// volume meaningfully shows up against the budget alarm.
+// 90 days: ample audit runway for a flyer site, well under the 731-day default.
 const LOG_BUCKET_LIFECYCLE_RULES = [{ expiration: Duration.days(90) }];
 
 export interface SystemStacks {
@@ -132,14 +126,8 @@ export function createSystem(stacks: SystemStacks, options: SystemOptions) {
   return compose(
     {
       // DNS
-      // composureCDK 0.8.0 enables Route 53 DNS query logging by default, which
-      // requires a us-east-1 log group; this zone is deployed in eu-west-2 and
-      // had no query logging under 0.7.0. Opt out to preserve that behaviour.
-      // See https://github.com/laazyj/composureCDK/issues/142 for the upstream
-      // discussion on making this default region-adaptive.
       zone: createHostedZoneBuilder().zoneName(domain).queryLogging(false),
       records: zoneRecords(ZONE_RECORDS).zone(hostedZone),
-      // Routed to siteStack in withStacks() so the stack graph stays acyclic.
       aliasRecords: zoneRecords(aliasSpecs).zone(hostedZone),
 
       // Cert (depends on zone for DNS validation)
@@ -156,22 +144,13 @@ export function createSystem(stacks: SystemStacks, options: SystemOptions) {
         .displayName(`${domain} site alerts`)
         .addSubscription("email", new EmailSubscription(alertEmail)),
 
-      // Notifies usEast1Alerts at AWS-recommended thresholds (80% actual, 100%
-      // forecasted). The builder auto-creates the SNS topic policy granting
-      // budgets.amazonaws.com:Publish — distinct from the alarmActionsPolicy
-      // wired in the afterBuild block below.
-      // 4 USD covers steady-state CloudFront + Route 53 + S3 for a low-traffic
-      // flyer site with healthy headroom; raise it if you add anything
-      // ongoing (Lambda@Edge, larger CloudFront price class, etc.).
       budget: createBudgetBuilder()
         .budgetName(`${domain}-monthly`)
         .limit({ amount: 4, unit: "USD" })
         .withRecommendedThresholds({ sns: ref<TopicBuilderResult>("usEast1Alerts").get("topic") })
         .recommendedAlarms(false),
 
-      // Site. Builder defaults give us versioning, RETAIN, server access logging,
-      // 7-day multipart abort, and 365-day noncurrent expiration; only override
-      // where the flyer-site scale wants tighter retention than the defaults.
+      // SITE
       bucket: createBucketBuilder()
         .serverAccessLogs({
           prefix: "logs/",
@@ -219,11 +198,7 @@ export function createSystem(stacks: SystemStacks, options: SystemOptions) {
         .recommendedAlarms(false),
       cdnAlarms: createCloudFrontAlarmBuilder().distribution(ref<DistributionBuilderResult>("cdn")),
 
-      // Route 53 health check on the public apex. Health checks are global
-      // resources so the construct can live in any region; we co-locate it
-      // with the site for operational locality. AWS/Route53 metrics emit only
-      // in us-east-1, so the recommended alarm is suppressed here and
-      // re-created in cdnAlarmsStack via the standalone alarm builder.
+      // HEALTHCHECK
       healthCheck: createHealthCheckBuilder()
         .type(HealthCheckType.HTTPS)
         .fqdn(domain)
