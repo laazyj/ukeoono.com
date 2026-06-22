@@ -1,0 +1,90 @@
+{
+  "name": "@uke-o-ono/cdk",
+  "version": "0.0.0",
+  "private": true,
+  "description": "AWS CDK infrastructure for uke-o-ono.com (domain, hosting, DNS).",
+  "type": "module",
+  "scripts": {
+    "clean": "rm -rf dist cdk.out",
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "test:update": "vitest run -u --passWithNoTests",
+    "test:watch": "vitest",
+    "cdk": "cdk",
+    "synth": "cdk synth",
+    "deploy": "cdk deploy --all",
+    "deploy:stack": "cdk deploy",
+    "diff": "cdk diff",
+    "smoke": "node scripts/smoke-test.mjs"
+  },
+  "nx": {
+    "implicitDependencies": [
+      "@uke-o-ono/site"
+    ],
+    "targets": {
+      "synth": {
+        "dependsOn": [
+          "build",
+          "@uke-o-ono/site:build"
+        ],
+        "inputs": [
+          "default",
+          "^default",
+          {
+            "env": "ALERT_EMAIL"
+          },
+          {
+            "env": "CDK_DEFAULT_ACCOUNT"
+          },
+          {
+            "env": "CDK_DEFAULT_REGION"
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/cdk.out"
+        ],
+        "cache": true
+      },
+      "deploy": {
+        "dependsOn": [
+          "build",
+          "@uke-o-ono/site:build"
+        ],
+        "cache": false
+      },
+      "deploy:stack": {
+        "dependsOn": [
+          "build"
+        ],
+        "cache": false
+      },
+      "diff": {
+        "dependsOn": [
+          "build",
+          "@uke-o-ono/site:build"
+        ],
+        "cache": false
+      }
+    }
+  },
+  "dependencies": {
+    "@composurecdk/acm": "^0.8.4",
+    "@composurecdk/budgets": "^0.8.4",
+    "@composurecdk/cloudformation": "^0.8.4",
+    "@composurecdk/cloudfront": "^0.8.4",
+    "@composurecdk/cloudwatch": "^0.8.4",
+    "@composurecdk/core": "^0.8.4",
+    "@composurecdk/iam": "^0.8.4",
+    "@composurecdk/route53": "^0.8.4",
+    "@composurecdk/s3": "^0.8.4",
+    "@composurecdk/sns": "^0.8.4",
+    "aws-cdk-lib": "^2.260.0",
+    "constructs": "^10.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.0",
+    "aws-cdk": "^2.1128.0",
+    "vitest": "^4.1.9"
+  }
+}
