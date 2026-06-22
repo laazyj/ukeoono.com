@@ -1,4 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Uke O Ono">
-  <rect width="64" height="64" rx="10" fill="#d92b1c" />
-  <text x="32" y="43" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="30" fill="#f4ecd3">UO</text>
+  <rect width="64" height="64" rx="12" fill="#e02d23" />
+  <g fill="#f4ecd0">
+    <!-- headstock -->
+    <rect x="27" y="6" width="10" height="9" rx="2.5" />
+    <circle cx="25.5" cy="8.5" r="1.4" /><circle cx="25.5" cy="12.5" r="1.4" />
+    <circle cx="38.5" cy="8.5" r="1.4" /><circle cx="38.5" cy="12.5" r="1.4" />
+    <!-- neck (the exclamation stroke) -->
+    <rect x="29.5" y="15" width="5" height="22" rx="1.5" />
+    <!-- body (the exclamation dot) -->
+    <ellipse cx="32" cy="48" rx="10.5" ry="11.5" />
+  </g>
+  <!-- soundhole + strings + bridge, knocked out in red -->
+  <g fill="none" stroke="#e02d23" stroke-width="1.1">
+    <line x1="30" y1="15" x2="30" y2="52" /><line x1="32" y1="15" x2="32" y2="52" /><line x1="34" y1="15" x2="34" y2="52" />
+  </g>
+  <circle cx="32" cy="45" r="3.4" fill="#e02d23" />
+  <rect x="27.5" y="52" width="9" height="2.2" rx="1" fill="#e02d23" />
 </svg>
