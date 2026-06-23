@@ -1,5 +1,5 @@
 {
-  "Description": "Notification topic for us-east-1 alarms (cert + CloudFront).",
+  "Description": "Notification topic + budget for us-east-1 alarms (CloudFront, health check).",
   "Outputs": {
     "ExportsOutputRefukeoonocomusEast1Alerts510483E25B0B10E7": {
       "Export": {

@@ -1,18 +1,8 @@
 {
   "Description": "uke-o-ono.com — static site on CloudFront + S3.",
-  "Mappings": {
-    "AWSCloudFrontPartitionHostedZoneIdMap": {
-      "aws": {
-        "zoneId": "Z2FDTNDATAQYW2",
-      },
-      "aws-cn": {
-        "zoneId": "Z3RFFRIM2A3IF5",
-      },
-    },
-  },
   "Outputs": {
     "DistributionDomainName": {
-      "Description": "CloudFront distribution domain (for manual CNAME checks).",
+      "Description": "CloudFront domain — point the apex and www CNAMEs at this in Cloudflare.",
       "Value": {
         "Fn::GetAtt": [
           "ukeoonocomcdn77D9C41B",
@@ -205,80 +195,6 @@
       },
       "Type": "AWS::IAM::Role",
     },
-    "CustomCrossRegionExportReaderCustomResourceProviderHandler46647B68": {
-      "DependsOn": [
-        "CustomCrossRegionExportReaderCustomResourceProviderRole10531BBD",
-      ],
-      "Properties": {
-        "Code": {
-          "S3Bucket": "cdk-hnb659fds-assets-111111111111-eu-west-2",
-          "S3Key": "<asset-hash>.zip",
-        },
-        "Handler": "__entrypoint__.handler",
-        "MemorySize": 128,
-        "Role": {
-          "Fn::GetAtt": [
-            "CustomCrossRegionExportReaderCustomResourceProviderRole10531BBD",
-            "Arn",
-          ],
-        },
-        "Runtime": "nodejs24.x",
-        "Timeout": 900,
-      },
-      "Type": "AWS::Lambda::Function",
-    },
-    "CustomCrossRegionExportReaderCustomResourceProviderRole10531BBD": {
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "lambda.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "ManagedPolicyArns": [
-          {
-            "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-          },
-        ],
-        "Policies": [
-          {
-            "PolicyDocument": {
-              "Statement": [
-                {
-                  "Action": [
-                    "ssm:AddTagsToResource",
-                    "ssm:RemoveTagsFromResource",
-                    "ssm:GetParameters",
-                  ],
-                  "Effect": "Allow",
-                  "Resource": {
-                    "Fn::Join": [
-                      "",
-                      [
-                        "arn:",
-                        {
-                          "Ref": "AWS::Partition",
-                        },
-                        ":ssm:eu-west-2:111111111111:parameter/cdk/exports/UkeOOnoSiteStack/*",
-                      ],
-                    ],
-                  },
-                },
-              ],
-              "Version": "2012-10-17",
-            },
-            "PolicyName": "Inline",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
-    },
     "CustomCrossRegionExportWriterCustomResourceProviderHandlerD8786E8A": {
       "DependsOn": [
         "CustomCrossRegionExportWriterCustomResourceProviderRoleC951B1E1",
@@ -356,26 +272,6 @@
       },
       "Type": "AWS::IAM::Role",
     },
-    "ExportsReader8B249524": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "ReaderProps": {
-          "imports": {
-            "/cdk/exports/UkeOOnoSiteStack/UkeOOnoCertStackuseast1RefukeoonocomcertDE4E9DD16002F187": "{{resolve:ssm:/cdk/exports/UkeOOnoSiteStack/UkeOOnoCertStackuseast1RefukeoonocomcertDE4E9DD16002F187}}",
-          },
-          "prefix": "UkeOOnoSiteStack",
-          "region": "eu-west-2",
-        },
-        "ServiceToken": {
-          "Fn::GetAtt": [
-            "CustomCrossRegionExportReaderCustomResourceProviderHandler46647B68",
-            "Arn",
-          ],
-        },
-      },
-      "Type": "Custom::CrossRegionExportReader",
-      "UpdateReplacePolicy": "Delete",
-    },
     "ExportsWriteruseast10F67B507DDE2E818": {
       "DeletionPolicy": "Delete",
       "Properties": {
@@ -399,114 +295,6 @@
       },
       "Type": "Custom::CrossRegionExportWriter",
       "UpdateReplacePolicy": "Delete",
-    },
-    "ukeoonocomaliasRecordsaApexA77B0CE0": {
-      "Properties": {
-        "AliasTarget": {
-          "DNSName": {
-            "Fn::GetAtt": [
-              "ukeoonocomcdn77D9C41B",
-              "DomainName",
-            ],
-          },
-          "HostedZoneId": {
-            "Fn::FindInMap": [
-              "AWSCloudFrontPartitionHostedZoneIdMap",
-              {
-                "Ref": "AWS::Partition",
-              },
-              "zoneId",
-            ],
-          },
-        },
-        "HostedZoneId": {
-          "Fn::ImportValue": "UkeOOnoDnsStack:ExportsOutputRefHostedZoneEE9C6912",
-        },
-        "Name": "uke-o-ono.com.",
-        "Type": "A",
-      },
-      "Type": "AWS::Route53::RecordSet",
-    },
-    "ukeoonocomaliasRecordsaaaaApexC5B475AB": {
-      "Properties": {
-        "AliasTarget": {
-          "DNSName": {
-            "Fn::GetAtt": [
-              "ukeoonocomcdn77D9C41B",
-              "DomainName",
-            ],
-          },
-          "HostedZoneId": {
-            "Fn::FindInMap": [
-              "AWSCloudFrontPartitionHostedZoneIdMap",
-              {
-                "Ref": "AWS::Partition",
-              },
-              "zoneId",
-            ],
-          },
-        },
-        "HostedZoneId": {
-          "Fn::ImportValue": "UkeOOnoDnsStack:ExportsOutputRefHostedZoneEE9C6912",
-        },
-        "Name": "uke-o-ono.com.",
-        "Type": "AAAA",
-      },
-      "Type": "AWS::Route53::RecordSet",
-    },
-    "ukeoonocomaliasRecordsaaaawww1BED8870": {
-      "Properties": {
-        "AliasTarget": {
-          "DNSName": {
-            "Fn::GetAtt": [
-              "ukeoonocomcdn77D9C41B",
-              "DomainName",
-            ],
-          },
-          "HostedZoneId": {
-            "Fn::FindInMap": [
-              "AWSCloudFrontPartitionHostedZoneIdMap",
-              {
-                "Ref": "AWS::Partition",
-              },
-              "zoneId",
-            ],
-          },
-        },
-        "HostedZoneId": {
-          "Fn::ImportValue": "UkeOOnoDnsStack:ExportsOutputRefHostedZoneEE9C6912",
-        },
-        "Name": "www.uke-o-ono.com.",
-        "Type": "AAAA",
-      },
-      "Type": "AWS::Route53::RecordSet",
-    },
-    "ukeoonocomaliasRecordsawwwA699DFD5": {
-      "Properties": {
-        "AliasTarget": {
-          "DNSName": {
-            "Fn::GetAtt": [
-              "ukeoonocomcdn77D9C41B",
-              "DomainName",
-            ],
-          },
-          "HostedZoneId": {
-            "Fn::FindInMap": [
-              "AWSCloudFrontPartitionHostedZoneIdMap",
-              {
-                "Ref": "AWS::Partition",
-              },
-              "zoneId",
-            ],
-          },
-        },
-        "HostedZoneId": {
-          "Fn::ImportValue": "UkeOOnoDnsStack:ExportsOutputRefHostedZoneEE9C6912",
-        },
-        "Name": "www.uke-o-ono.com.",
-        "Type": "A",
-      },
-      "Type": "AWS::Route53::RecordSet",
     },
     "ukeoonocombucket7278B393": {
       "DeletionPolicy": "Retain",
@@ -810,12 +598,7 @@
           ],
           "PriceClass": "PriceClass_100",
           "ViewerCertificate": {
-            "AcmCertificateArn": {
-              "Fn::GetAtt": [
-                "ExportsReader8B249524",
-                "/cdk/exports/UkeOOnoSiteStack/UkeOOnoCertStackuseast1RefukeoonocomcertDE4E9DD16002F187",
-              ],
-            },
+            "AcmCertificateArn": "arn:aws:acm:us-east-1:111111111111:certificate/11111111-1111-1111-1111-111111111111",
             "MinimumProtocolVersion": "TLSv1.2_2021",
             "SslSupportMethod": "sni-only",
           },

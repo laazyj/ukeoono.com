@@ -1,232 +1,182 @@
 # `@uke-o-ono/cdk`
 
-AWS CDK app that owns the domain, DNS, certificate, CDN, S3 bucket, alarms,
-and CI deploy role for [uke-o-ono.com](https://uke-o-ono.com/).
+AWS CDK app that owns the CDN, S3 bucket, monitoring, and CI deploy role for
+[uke-o-ono.com](https://uke-o-ono.com/).
 
-Built with [composureCDK](https://github.com/laazyj/composureCDK): the five
+**DNS lives at Cloudflare, not AWS.** The domain is registered with Cloudflare
+Registrar, which pins the domain to Cloudflare's nameservers — so this app owns
+no Route 53 hosted zone. The TLS certificate is validated by hand in Cloudflare
+and **imported by ARN**, and the apex / `www` records are CNAMEs in Cloudflare
+pointing at the CloudFront distribution. See [DNS & certificate](#dns--certificate).
+
+Built with [composureCDK](https://github.com/laazyj/composureCDK): the
 application stacks are wired declaratively as one composed system in
-[`src/system.ts`](./src/system.ts) and deploy together with
-`cdk deploy --all`. The docblock on `createSystem()` walks through the three
-moving parts (the builder block, the dependency block, and the
-`withStacks` / `afterBuild` wiring).
+[`src/system.ts`](./src/system.ts) and deploy together with `cdk deploy --all`.
 
 ## File map
 
-| File                                                           | Role                                                                                                                                                          |
-| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`src/app.ts`](./src/app.ts)                                   | Entry point. Builds the `App`, the five application stacks, and the standalone CI OIDC stack. The top-of-file `CONFIG` block holds the domain and region.     |
-| [`src/system.ts`](./src/system.ts)                             | The composition root — the `compose(...)` call that wires every builder.                                                                                      |
-| [`src/stacks/ci-oidc-stack.ts`](./src/stacks/ci-oidc-stack.ts) | Standalone OIDC provider + `GitHubActionsDeployRole` assumed by `.github/workflows/`.                                                                         |
-| [`src/redirect-function.ts`](./src/redirect-function.ts)       | The CloudFront viewer-request function source: `www`→apex 301 + pretty-URL → `index.html` rewrite. Only the string between the backticks ships to the edge.   |
-| [`src/zone-records.ts`](./src/zone-records.ts)                 | DNS records for the zone (currently empty — no mail yet). Apex and `www` ALIASes are added in `system.ts` because they depend on the CloudFront distribution. |
-| [`scripts/`](./scripts/)                                       | Post-deploy operational scripts: the live-site smoke test.                                                                                                    |
-| [`test/`](./test/)                                             | Vitest snapshot tests + functional assertions. Snapshots are committed and reviewed in PRs.                                                                   |
+| File                                                           | Role                                                                                                                                                        |
+| -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`src/app.ts`](./src/app.ts)                                   | Entry point. Builds the `App`, the three application stacks, and the standalone CI OIDC stack. The top-of-file `CONFIG` block holds the domain and regions. |
+| [`src/system.ts`](./src/system.ts)                             | The composition root — the `compose(...)` call that wires every builder.                                                                                    |
+| [`src/stacks/ci-oidc-stack.ts`](./src/stacks/ci-oidc-stack.ts) | Standalone OIDC provider + `GitHubActionsDeployRole` assumed by `.github/workflows/`.                                                                       |
+| [`src/redirect-function.ts`](./src/redirect-function.ts)       | The CloudFront viewer-request function source: `www`→apex 301 + pretty-URL → `index.html` rewrite. Only the string between the backticks ships to the edge. |
+| [`scripts/`](./scripts/)                                       | Post-deploy operational scripts: the live-site smoke test.                                                                                                  |
+| [`test/`](./test/)                                             | Vitest snapshot tests + functional assertions. Snapshots are committed and reviewed in PRs.                                                                 |
 
 ## Stack architecture
 
 ```
-Cross-region edges (auto-wired by `crossRegionReferences: true`):
+Cross-region edge (auto-wired by `crossRegionReferences: true`):
 
-  DnsStack    (eu-west-2) ── DNS validation ──▶ CertStack       (us-east-1)
-  CertStack   (us-east-1) ── certificate ARN ─▶ SiteStack       (eu-west-2)
-  SiteStack   (eu-west-2) ── distribution id ─▶ CdnAlarmsStack  (us-east-1)
+  SiteStack  (eu-west-2) ── distribution id ─▶ CdnAlarmsStack (us-east-1)
 
-Same-region edges (us-east-1):
+Same-region edge (us-east-1):
 
-  UsEast1AlertsStack ── alarm actions ──▶ CertStack, CdnAlarmsStack
+  UsEast1AlertsStack ── alarm actions ──▶ CdnAlarmsStack
 
 Standalone (no edges to the application stacks):
 
   CiOidcStack
 ```
 
-The CDK app is a single top-level `compose()` routed across five application
-stacks plus a standalone CI stack:
+Three application stacks plus a standalone CI stack:
 
-- **`UkeOOnoDnsStack`** (`eu-west-2`) — Route 53 hosted zone. No non-apex DNS
-  records yet (mail/DKIM/verification go in `src/zone-records.ts` when
-  configured). Route 53 is a global service; the region choice is cosmetic.
-- **`UkeOOnoCertStack`** (`us-east-1`) — ACM certificate for apex + `www`,
-  DNS-validated against the hosted zone. `us-east-1` is an AWS requirement for
-  certificates attached to CloudFront.
-- **`UkeOOnoSiteStack`** (`eu-west-2`) — S3 bucket, CloudFront distribution,
-  CloudFront Function (`www`→apex 301 + pretty-URL rewrite), bucket deployment
-  of the Eleventy output, apex/`www` alias records, Route 53 health check, and
-  an SNS topic for site-region alarms.
+- **`UkeOOnoSiteStack`** (`eu-west-2`) — S3 bucket, CloudFront distribution
+  (TLS via the imported us-east-1 ACM cert), CloudFront Function (`www`→apex
+  301 + pretty-URL rewrite), bucket deployment of the Eleventy output, a
+  Route 53 health check on the public apex, and an SNS topic for site-region
+  alarms. The cert is referenced with `Certificate.fromCertificateArn(...)` —
+  a plain ARN reference, so no resource and no cross-region plumbing.
 - **`UkeOOnoUsEast1AlertsStack`** (`us-east-1`) — SNS topic shared by every
-  us-east-1 alarm (cert, CloudFront, health check) plus the monthly Budget. No
+  us-east-1 alarm (CloudFront, health check) plus the monthly Budget. No
   downstream deps so any us-east-1 stack can target it without creating a cycle.
 - **`UkeOOnoCdnAlarmsStack`** (`us-east-1`) — CloudFront and Route 53
-  health-check CloudWatch alarms. Both metric streams emit only in `us-east-1`,
-  so the alarms must live there too. Kept separate from the cert stack to avoid
-  a `cdn ↔ cert` cycle.
+  health-check CloudWatch alarms. Both metric streams emit **only** in
+  `us-east-1`, so the alarms must live there too (this is the only reason the
+  app still spans two regions).
 - **`UkeOOnoCiOidcStack`** (`eu-west-2`) — GitHub OIDC provider and the
   `GitHubActionsDeployRole`. Standalone; deployed once from a workstation.
 
-Every stack opts in to `crossRegionReferences: true`, which lets CDK
-auto-generate the SSM-parameter + custom-resource plumbing for cross-region
-edges. Deployment order is inferred from the references, so no `addDependency`
-calls are needed.
+Every stack opts in to `crossRegionReferences: true` for the single
+`SiteStack → CdnAlarmsStack` edge; deployment order is inferred from the
+references, so no `addDependency` calls are needed.
 
-## CDK scripts
+## DNS & certificate
 
-Run from the repo root (each `cdk:*` script runs the cdk build + site build
-first via Nx's task graph):
+Because the domain is on Cloudflare Registrar (nameservers locked to
+Cloudflare), AWS cannot be authoritative for the zone. So two things are done
+**by hand in the Cloudflare dashboard**, and the cert ARN is passed to the app
+via the `CERT_ARN` environment variable / GitHub repo variable.
 
-- `npm run cdk:synth` — render CloudFormation for all stacks.
-- `npm run cdk:diff` — preview changes for all stacks.
-- `npm run cdk:deploy` — deploy **all** stacks. Default for simplicity; review
-  the per-stack snapshot diffs under `test/__snapshots__/` first.
-- `npm run cdk:deploy:stack -- <StackName>` — escape hatch for a single stack
-  (e.g. `npm run cdk:deploy:stack -- UkeOOnoSiteStack`).
+### 1. Request + validate the certificate (one-time)
 
-## Post-deploy / one-off scripts
+In **ACM, us-east-1** (CloudFront requires us-east-1), request a public cert for
+`uke-o-ono.com` with `www.uke-o-ono.com` as a SAN, DNS validation:
 
 ```sh
-npm run site:smoke              # post-deploy smoke (homepage, sitemap, sample, 404, www→apex)
+aws acm request-certificate --region us-east-1 \
+  --domain-name uke-o-ono.com \
+  --subject-alternative-names www.uke-o-ono.com \
+  --validation-method DNS \
+  --query CertificateArn --output text
 ```
 
-CI runs the smoke test after every deploy. It's exposed as a root script for
-ad-hoc runs.
+Read the two validation `CNAME` records ACM wants:
 
-Environment variables (the smoke test reads its own subset; missing values fall
-back to sensible defaults):
+```sh
+aws acm describe-certificate --region us-east-1 --certificate-arn <ARN> \
+  --query "Certificate.DomainValidationOptions[].ResourceRecord" --output table
+```
 
-| Variable            | Used by | Default                 | Purpose                                                                                       |
-| ------------------- | ------- | ----------------------- | --------------------------------------------------------------------------------------------- |
-| `BASE_URL`          | smoke   | `https://uke-o-ono.com` | Origin under test.                                                                            |
-| `EXPECTED_SHA`      | smoke   | _unset_                 | If set, smoke asserts `<meta name="build-sha">` matches; CI sets this to `${{ github.sha }}`. |
-| `SMOKE_RETRIES`     | smoke   | `6`                     | Per-URL retry count for transient failures.                                                   |
-| `SMOKE_RETRY_MS`    | smoke   | `5000`                  | Delay between retries in milliseconds.                                                        |
-| `SMOKE_SAMPLE`      | smoke   | `10`                    | Number of randomly-sampled sitemap URLs to probe (`0` disables).                              |
-| `SMOKE_CONCURRENCY` | smoke   | `5`                     | Parallel HTTP fetches for the sample.                                                         |
+Add both as **CNAME** records in Cloudflare (DNS-only / grey cloud). Within a
+few minutes the cert flips to `ISSUED`. That `<ARN>` is the value for `CERT_ARN`.
+
+### 2. Point the domain at CloudFront (after the first deploy)
+
+After `SiteStack` deploys, read the distribution domain:
+
+```sh
+aws cloudformation describe-stacks --region eu-west-2 --stack-name UkeOOnoSiteStack \
+  --query "Stacks[0].Outputs[?OutputKey=='DistributionDomainName'].OutputValue" --output text
+```
+
+In Cloudflare add, both **DNS-only / grey cloud**:
+
+| Type  | Name            | Target                   |
+| ----- | --------------- | ------------------------ |
+| CNAME | `uke-o-ono.com` | `<dxxxx>.cloudfront.net` |
+| CNAME | `www`           | `<dxxxx>.cloudfront.net` |
+
+Cloudflare flattens the apex CNAME automatically. Grey-cloud so CloudFront
+terminates TLS with the ACM cert and the `www`→apex function runs at the edge.
 
 ## Deploying
 
-Pushes to `main` deploy automatically — see
-[Continuous deployment](#continuous-deployment) below. The manual flow here is
-the fallback for emergencies or first-time bootstrap.
+Pushes to `main` deploy automatically (see [Continuous deployment](#continuous-deployment)).
+The manual flow is the fallback for first-time bootstrap or emergencies.
 
-The CDK app uses the standard `CDK_DEFAULT_ACCOUNT` / `CDK_DEFAULT_REGION`
-environment variables, plus `ALERT_EMAIL` (the address subscribed to both
-alarm topics — synth fails if it is unset). Authenticate with the target AWS
-account first (e.g. `aws sso login --profile uke-o-ono.com`, then
-`export AWS_PROFILE=uke-o-ono.com` for the rest of the shell), then:
+Required env: `ALERT_EMAIL` (subscribed to both alarm topics) and `CERT_ARN`
+(the issued us-east-1 cert ARN). Synth fails if either is unset. Authenticate to
+the account first (`aws sso login`), then:
 
 ```sh
 export ALERT_EMAIL=alert@jasonduffett.org
+export CERT_ARN=arn:aws:acm:us-east-1:<account>:certificate/<id>
 npm run site:build   # build site content
-npm run cdk:synth    # render CloudFormation
 npm run cdk:diff     # preview changes
 npm run cdk:deploy   # apply (all stacks)
 ```
 
-After the first deploy, AWS sends one confirmation email per topic
-(us-east-1 and eu-west-2). Click both confirm links — alerts only flow once
-the subscriptions are in the `Confirmed` state.
-
-### Reviewing infra changes
-
-[`test/app.test.ts`](./test/app.test.ts) snapshots the synthesised
-CloudFormation for every stack. Any change that affects the templates
-(DNS records, alarm thresholds, distribution config) shows up in the snapshot
-diff in the PR. If you intend the change, regenerate with
-`npm run test:update`. If you don't, you have a regression.
+After the first deploy, AWS sends one SNS confirmation email per topic
+(us-east-1 and eu-west-2 / site). Click both confirm links — alerts only flow
+once the subscriptions are `Confirmed`.
 
 ### First-time setup
 
-A new AWS account needs `cdk bootstrap` run once per region the app deploys
-into. This app spans two regions, so bootstrap both:
+1. **Bootstrap** both regions once: `npx cdk bootstrap aws://<account>/eu-west-2`
+   and `.../us-east-1`.
+2. **Certificate** — do [DNS & certificate step 1](#1-request--validate-the-certificate-one-time)
+   and note the ARN.
+3. **CI OIDC stack** — `ALERT_EMAIL=… CERT_ARN=… npm run cdk:deploy:stack -- UkeOOnoCiOidcStack`;
+   note the `GitHubActionsDeployRoleArn` output.
+4. **GitHub config** (see [CI bootstrap](#ci-bootstrap-one-time)).
+5. **Deploy** the rest (push to `main`, or `npm run cdk:deploy`).
+6. **DNS** — do [DNS & certificate step 2](#2-point-the-domain-at-cloudfront-after-the-first-deploy).
 
-```sh
-ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
-npx cdk bootstrap aws://$ACCOUNT/eu-west-2   # DNS + Site stacks
-npx cdk bootstrap aws://$ACCOUNT/us-east-1   # Cert + alarm stacks (CloudFront requirement)
-```
+## CDK scripts
 
-For the very first deploy, deploy the DNS stack alone first so you can read
-its nameservers before delegating:
+Run from the repo root (each runs the cdk + site build first via Nx):
 
-```sh
-npm run cdk:deploy:stack -- UkeOOnoDnsStack
-```
-
-Then proceed with [Domain delegation](#domain-delegation) below before
-deploying the remaining stacks (the certificate's DNS validation succeeds
-automatically once delegation lands).
+- `npm run cdk:synth` / `npm run cdk:diff` — render / preview all stacks.
+- `npm run cdk:deploy` — deploy **all** stacks.
+- `npm run cdk:deploy:stack -- <StackName>` — single stack.
+- `npm run site:smoke` — post-deploy smoke (homepage, sitemap, sample, 404, www→apex).
 
 ## Continuous deployment
 
-`main` auto-deploys via GitHub Actions:
+`main` auto-deploys via GitHub Actions, authenticating to AWS via OpenID
+Connect (no long-lived keys):
 
-- **`.github/workflows/pr.yml`** — runs on every PR: lint, format, build,
-  test, plus `cdk diff` posted as a comment so infra changes are visible at
-  review time.
-- **`.github/workflows/deploy.yml`** — runs on push to `main`: full verify,
-  fresh `site:build` (with `GITHUB_SHA` baked into a `<meta name="build-sha">`
-  tag), `cdk deploy --all`, and the post-deploy smoke test. A failure on any
-  step fails the workflow; GitHub emails the repo owner by default.
-
-Both workflows authenticate to AWS via OpenID Connect — there are no
-long-lived AWS keys in GitHub. The OIDC provider and the deploy role are
-managed as a CDK stack (`UkeOOnoCiOidcStack`) so the trust policy lives in
-source control. Third-party action versions are pinned to commit SHAs (with
-`# vX.Y.Z` comments that Dependabot can read) so a tag rewrite upstream
-cannot silently change what runs in CI.
+- **`.github/workflows/pr.yml`** — on every PR: lint, format, build, test, plus
+  `cdk diff` posted as a comment.
+- **`.github/workflows/deploy.yml`** — on push to `main`: verify, fresh
+  `site:build` (with `GITHUB_SHA` in a `<meta name="build-sha">` tag),
+  `cdk deploy --all`, and the smoke test.
 
 ### CI bootstrap (one-time)
 
-After the standard `cdk bootstrap` in [First-time setup](#first-time-setup),
-deploy the OIDC stack locally:
+Configure GitHub (Settings → Secrets and variables → Actions):
 
-```sh
-ALERT_EMAIL=alert@jasonduffett.org npm run cdk:deploy:stack -- UkeOOnoCiOidcStack
-```
-
-The stack outputs `GitHubActionsDeployRoleArn`. Configure GitHub:
-
-- **Repository secrets** (Settings → Secrets and variables → Actions → Secrets):
-  - `AWS_DEPLOY_ROLE_ARN` — the role ARN from the stack output.
-  - `ALERT_EMAIL` — same address used for the alarm topics.
-- **Branch protection on `main`** (Settings → Branches): require a pull
-  request before merging and require the `verify` and `cdk diff` status
-  checks to pass.
+- **Secrets:** `AWS_DEPLOY_ROLE_ARN` (the OIDC stack output), `ALERT_EMAIL`.
+- **Variables:** `CERT_ARN` (the issued cert ARN — not secret), and optionally
+  `GA_MEASUREMENT_ID` (unset = no analytics tag / cookie banner).
+- **Branch protection on `main`:** require a PR and the `verify` + `cdk diff`
+  checks.
 
 The deploy role's trust policy is restricted to two exact subject claims —
 `repo:laazyj/ukeoono.com:ref:refs/heads/main` and
-`repo:laazyj/ukeoono.com:pull_request` — so forks run workflows under their
-own OIDC namespace and cannot assume the role. Making the repository public
-does not expand who can deploy.
-
-## Domain delegation
-
-To delegate the zone to Route 53, point the domain's NS records at the
-hosted-zone name servers:
-
-1. Read the new name servers from the stack output:
-
-   ```sh
-   aws cloudformation describe-stacks \
-     --stack-name UkeOOnoDnsStack \
-     --query "Stacks[0].Outputs[?OutputKey=='NameServers'].OutputValue" \
-     --output text
-   ```
-
-2. At the registrar, replace the existing NS records with the four AWS NS
-   hostnames from step 1 (no trailing dot).
-
-3. Wait for propagation (typically minutes; up to a couple of hours). Verify with:
-
-   ```sh
-   dig +trace @1.1.1.1 uke-o-ono.com NS    # bottom should show the AWS nameservers
-   ```
-
-4. Smoke-test the live site once delegation has propagated:
-
-   ```sh
-   curl -I https://uke-o-ono.com/
-   curl -I https://www.uke-o-ono.com/             # 301 → apex
-   ```
+`repo:laazyj/ukeoono.com:pull_request` — so forks cannot assume it.
 
 ## Tests
 
@@ -234,23 +184,14 @@ hosted-zone name servers:
 npx nx run @uke-o-ono/cdk:test
 ```
 
-[`test/app.test.ts`](./test/app.test.ts) synthesises every stack, snapshots
-the CloudFormation, and adds functional assertions for invariants that must
-hold regardless of refactors (certificate SANs, budget limit, alarm coverage,
-OIDC trust policy).
-
-After intentional infra changes, regenerate snapshots with
-`npx nx run @uke-o-ono/cdk:test -- -u`.
-
-## Linting and formatting
-
-Inherits the root ESLint and Prettier configs. Run `npm run lint` /
-`npm run format:check` from the repo root.
+[`test/app.test.ts`](./test/app.test.ts) synthesises every stack, snapshots the
+CloudFormation, and adds functional assertions for invariants that must hold
+regardless of refactors (distribution aliases + imported cert ARN, budget limit,
+alarm coverage, OIDC trust policy). Regenerate snapshots after intentional infra
+changes with `npx nx run @uke-o-ono/cdk:test -- -u`.
 
 ## See also
 
 - [Top-level README](../../README.md) — repo overview.
-- [`@uke-o-ono/site`](../site/README.md) — the Eleventy site this CDK app
-  hosts.
-- [composureCDK](https://github.com/laazyj/composureCDK) — the framework used
-  here.
+- [`@uke-o-ono/site`](../site/README.md) — the Eleventy site this CDK app hosts.
+- [composureCDK](https://github.com/laazyj/composureCDK) — the framework used here.
