@@ -10,9 +10,10 @@ import { createSystem } from "./system.js";
  * specific lives here; the rest of the code reads from the values passed
  * through `createSystem()`.
  *
- * `edgeRegion` is fixed to `us-east-1` because that's where ACM certificates
- * attached to CloudFront must live and where CloudFront/Route 53 metrics
- * emit. `primaryRegion` is otherwise free.
+ * `edgeRegion` is fixed to `us-east-1` because that's where CloudFront and
+ * Route 53 health-check metrics emit, so the alarms watching them must live
+ * there. `primaryRegion` is otherwise free. (The ACM cert is created by hand
+ * in us-east-1 and imported by ARN — see `certArn` — so it needs no stack.)
  */
 const CONFIG = {
   domain: "uke-o-ono.com",
@@ -27,13 +28,15 @@ export interface BuildAppOptions {
   readonly siteContentPath: string;
   /** Email address subscribed to both alarm topics. */
   readonly alertEmail: string;
+  /** ARN of the pre-validated us-east-1 ACM cert (validated in Cloudflare). */
+  readonly certArn: string;
 }
 
 /**
  * Constructs the App + stacks but does not call `synth()`. Tests import this
  * to snapshot the same wiring CDK actually deploys.
  */
-export function buildApp({ account, siteContentPath, alertEmail }: BuildAppOptions): App {
+export function buildApp({ account, siteContentPath, alertEmail, certArn }: BuildAppOptions): App {
   const app = new App();
 
   // Both ends of a cross-region ref must opt in, so every stack sets the flag.
@@ -42,21 +45,11 @@ export function buildApp({ account, siteContentPath, alertEmail }: BuildAppOptio
     crossRegionReferences: true,
   });
 
-  const dnsStack = new Stack(app, "UkeOOnoDnsStack", {
-    ...stackProps(CONFIG.primaryRegion),
-    description: `DNS for ${CONFIG.domain} (Route 53 hosted zone + records).`,
-  });
-
   // Dedicated topic stack so it has no downstream deps and every us-east-1
-  // stack (cert, cdnAlarms, future) can target the same topic without cycles.
+  // stack (cdnAlarms, future) can target the same topic without cycles.
   const usEast1AlertsStack = new Stack(app, "UkeOOnoUsEast1AlertsStack", {
     ...stackProps(CONFIG.edgeRegion),
-    description: "Notification topic for us-east-1 alarms (cert + CloudFront).",
-  });
-
-  const certStack = new Stack(app, "UkeOOnoCertStack", {
-    ...stackProps(CONFIG.edgeRegion),
-    description: `ACM certificate for ${CONFIG.domain}.`,
+    description: "Notification topic + budget for us-east-1 alarms (CloudFront, health check).",
   });
 
   const siteStack = new Stack(app, "UkeOOnoSiteStack", {
@@ -64,9 +57,8 @@ export function buildApp({ account, siteContentPath, alertEmail }: BuildAppOptio
     description: `${CONFIG.domain} — static site on CloudFront + S3.`,
   });
 
-  // Kept separate from certStack to avoid a cdn↔cert cycle (this stack reads
-  // distribution id from siteStack, which depends on certStack). Logical id
-  // retains the "CdnAlarms" name so the deployed stack isn't replaced.
+  // CloudFront and Route 53 health-check metrics emit only in us-east-1, so
+  // their alarms must live there. Reads the distribution id from siteStack.
   const cdnAlarmsStack = new Stack(app, "UkeOOnoCdnAlarmsStack", {
     ...stackProps(CONFIG.edgeRegion),
     description: "CloudWatch alarms for site metrics that AWS only emits in us-east-1.",
@@ -81,8 +73,8 @@ export function buildApp({ account, siteContentPath, alertEmail }: BuildAppOptio
   addCiOidc(ciOidcStack, { githubOwner: "laazyj", githubRepo: "ukeoono.com" });
 
   createSystem(
-    { dnsStack, usEast1AlertsStack, certStack, siteStack, cdnAlarmsStack },
-    { domain: CONFIG.domain, siteContentPath, alertEmail },
+    { usEast1AlertsStack, siteStack, cdnAlarmsStack },
+    { domain: CONFIG.domain, siteContentPath, alertEmail, certArn },
   ).build(app, CONFIG.domain);
 
   return app;
@@ -95,9 +87,16 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   if (!alertEmail) {
     throw new Error("ALERT_EMAIL is required, e.g. `export ALERT_EMAIL=you@example.com`.");
   }
+  const certArn = process.env.CERT_ARN;
+  if (!certArn) {
+    throw new Error(
+      "CERT_ARN is required — the ARN of the us-east-1 ACM cert (validated in Cloudflare).",
+    );
+  }
   buildApp({
     account: process.env.CDK_DEFAULT_ACCOUNT,
     siteContentPath: resolve(import.meta.dirname, "..", "..", "site", "dist"),
     alertEmail,
+    certArn,
   }).synth();
 }

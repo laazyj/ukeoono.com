@@ -5,10 +5,13 @@ import { beforeAll, describe, expect, it } from "vitest";
 
 import { buildApp } from "../src/app.js";
 
+// A fixed dummy ARN so snapshots stay stable; shape matches a real us-east-1
+// ACM cert ARN (the kind you'd validate in Cloudflare and import).
+const CERT_ARN =
+  "arn:aws:acm:us-east-1:111111111111:certificate/11111111-1111-1111-1111-111111111111";
+
 const STACK_NAMES = [
-  "UkeOOnoDnsStack",
   "UkeOOnoUsEast1AlertsStack",
-  "UkeOOnoCertStack",
   "UkeOOnoSiteStack",
   "UkeOOnoCdnAlarmsStack",
   "UkeOOnoCiOidcStack",
@@ -26,6 +29,7 @@ describe("app synthesis", () => {
       account: "111111111111",
       siteContentPath: resolve(import.meta.dirname, "fixtures", "site"),
       alertEmail: "alerts@example.invalid",
+      certArn: CERT_ARN,
     });
     templates = Object.fromEntries(
       STACK_NAMES.map((name) => [name, stackTemplate(app, name).toJSON()]),
@@ -33,7 +37,7 @@ describe("app synthesis", () => {
   });
 
   // One snapshot file per stack — keeps PR diffs scoped to the stacks that
-  // actually changed instead of bundling all six into a single .snap file.
+  // actually changed instead of bundling all four into a single .snap file.
   // The template object is handed to the matcher directly so vitest's snapshot
   // serializer pipeline runs; CDK asset hashes are normalised to a stable
   // placeholder there (see vitest.setup.ts).
@@ -47,13 +51,15 @@ describe("app synthesis", () => {
   // refactors. (2) They also illustrate the kinds of checks worth writing
   // against composureCDK output beyond the synth snapshot.
 
-  describe("ACM certificate", () => {
-    it("covers apex and www", () => {
-      stackTemplate(app, "UkeOOnoCertStack").hasResourceProperties(
-        "AWS::CertificateManager::Certificate",
+  describe("CloudFront distribution", () => {
+    it("serves apex + www on the imported us-east-1 certificate", () => {
+      stackTemplate(app, "UkeOOnoSiteStack").hasResourceProperties(
+        "AWS::CloudFront::Distribution",
         {
-          DomainName: "uke-o-ono.com",
-          SubjectAlternativeNames: ["www.uke-o-ono.com"],
+          DistributionConfig: Match.objectLike({
+            Aliases: ["uke-o-ono.com", "www.uke-o-ono.com"],
+            ViewerCertificate: Match.objectLike({ AcmCertificateArn: CERT_ARN }),
+          }),
         },
       );
     });

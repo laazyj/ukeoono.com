@@ -5,14 +5,15 @@ Edinburgh ukulele band playing PBH's Free Fringe 2026 ("Ballads & Bangers").
 
 Built the same way as [ukehoot.net](https://ukehoot.net): an Nx monorepo with an
 Eleventy static site and a [composureCDK](https://github.com/laazyj/composureCDK)
-AWS deployment (S3 + CloudFront + Route53 + ACM).
+AWS deployment (S3 + CloudFront + ACM). DNS is hosted at Cloudflare — see the
+[CDK README](packages/cdk/README.md#dns--certificate).
 
 ## Packages
 
-| Package           | What it is                                              |
-| ----------------- | ------------------------------------------------------- |
-| `@uke-o-ono/site` | Eleventy static site (the flyer).                       |
-| `@uke-o-ono/cdk`  | composureCDK app — S3/CloudFront/Route53/ACM + CI OIDC. |
+| Package           | What it is                                      |
+| ----------------- | ----------------------------------------------- |
+| `@uke-o-ono/site` | Eleventy static site (the flyer).               |
+| `@uke-o-ono/cdk`  | composureCDK app — S3/CloudFront/ACM + CI OIDC. |
 
 ## Common commands
 
