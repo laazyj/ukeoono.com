@@ -1,5 +1,9 @@
 # uke-o-ono.com
 
+[![Built with ComposureCDK](https://img.shields.io/badge/built%20with-ComposureCDK-0f0d0c?labelColor=b85416)](https://github.com/laazyj/composureCDK)
+[![Code: MIT](https://img.shields.io/badge/code-MIT-blue.svg)](LICENSE)
+[![Content: © Uke O Ono](https://img.shields.io/badge/content-%C2%A9%20Uke%20O%20Ono-lightgrey.svg)](LICENSE-content.md)
+
 Monorepo for **uke-o-ono.com** — a single-page online flyer for Uke O Ono, an
 Edinburgh ukulele band playing PBH's Free Fringe 2026 ("Ballads & Bangers").
 
