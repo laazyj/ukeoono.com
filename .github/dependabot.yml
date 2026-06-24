@@ -1,0 +1,31 @@
+version: 2
+updates:
+  # npm workspaces: the root lockfile covers both packages, so a single entry
+  # at "/" keeps the root and the cdk/site workspaces in sync.
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      # Batch routine bumps into one PR; majors still come through on their own.
+      npm-minor-patch:
+        update-types:
+          - minor
+          - patch
+
+  # Keep the SHA-pinned actions in the workflows current.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: ci
+      include: scope
+    groups:
+      github-actions:
+        patterns:
+          - "*"
