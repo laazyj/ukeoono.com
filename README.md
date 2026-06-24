@@ -36,3 +36,16 @@ npm run cdk:deploy   # deploy (CI does this on push to main)
 A Husky `pre-commit` hook runs [gitleaks](https://github.com/gitleaks/gitleaks)
 against staged changes. Install it with `brew install gitleaks`, or skip a
 single commit with `git commit --no-verify`.
+
+## Contributions
+
+This is a personal project for one band and is not accepting contributions.
+You're welcome to read the code and reuse the parts the licence permits.
+
+## Licence
+
+The source code is MIT licensed (see [`LICENSE`](LICENSE)). The site copy, gig
+data, photographs, and branding are not licensed for reuse (see
+[`LICENSE-content.md`](LICENSE-content.md)).
+
+Found a security issue? See [`SECURITY.md`](SECURITY.md).
