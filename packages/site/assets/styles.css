@@ -198,14 +198,18 @@ footer.site {
   .flyer-grid {
     grid-template-columns: minmax(0, 1fr) clamp(232px, 26vw, 300px);
     grid-template-areas:
-      "hero   photos"
-      "dates  photos"
-      "follow photos";
+      "hero    photos"
+      "dates   photos"
+      "special photos"
+      "follow  photos";
     column-gap: 2.2rem;
     align-items: start;
   }
   .hero {
     grid-area: hero;
+  }
+  .special {
+    grid-area: special;
   }
   .photos {
     grid-area: photos;
@@ -381,6 +385,12 @@ footer.site {
   color: var(--ink-soft);
   font-size: 0.9rem;
 }
+.venue-address a {
+  color: var(--ink);
+  text-decoration-color: var(--red);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
 .session-list {
   list-style: none;
   margin: 0;
@@ -416,6 +426,53 @@ footer.site {
   letter-spacing: 0.02em;
   color: var(--red-deep);
   font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------ Special (off-Fringe gig) ------------- */
+/* A one-off, ticketed show that sits apart from the Free Fringe run. Carried
+   on the same cream ticket stub, but flagged with an ink banner and linked out
+   to the promoter so it reads as separate from the August dates. */
+.ticket--special {
+  position: relative;
+}
+.special-eyebrow {
+  display: inline-block;
+  font-family: "Archivo", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--cream);
+  background: var(--ink);
+  padding: 0.28rem 0.6rem;
+  margin: 0 0 0.8rem;
+  transform: rotate(-1deg);
+}
+.special-blurb {
+  margin: 0.9rem 0 0;
+  color: var(--ink-soft);
+  font-size: 1.02rem;
+}
+.special-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.7rem 1rem;
+  margin: 1.2rem 0 0.4rem;
+}
+.special-row .btn--primary {
+  background: var(--red);
+  color: var(--cream);
+  border-color: var(--red);
+}
+.special-promoter {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+.special-promoter a {
+  color: var(--red-deep);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
 }
 
 /* ------------------------------ Follow ------------------------------- */
