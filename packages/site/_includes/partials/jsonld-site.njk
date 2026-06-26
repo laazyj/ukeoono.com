@@ -28,9 +28,17 @@
       "name": {{ (site.author.name + " — " + site.show.title) | dump | safe }},
       "description": {{ site.show.blurb | dump | safe }},
       "startDate": "{{ e.startDate }}",
+      "endDate": "{{ e.endDate }}",
       "eventStatus": "https://schema.org/EventScheduled",
       "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
       "isAccessibleForFree": true,
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "GBP",
+        "availability": "https://schema.org/InStock",
+        "url": "{{ site.url }}/"
+      },
       "image": [{{ ogImage | dump | safe }}],
       "inLanguage": "{{ site.language }}",
       "organizer": { "@id": "{{ site.author.id }}" },
