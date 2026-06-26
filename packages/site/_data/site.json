@@ -24,7 +24,7 @@
   "lineup": [
     {
       "venue": "Bowlers Rest",
-      "address": "",
+      "address": "24 Mitchell St, Leith, Edinburgh EH6 7BD",
       "mapUrl": "https://bowlersrest.com/",
       "sessions": [
         { "day": "Saturdays", "dates": [8, 22, 29], "time": "16:45" },
@@ -33,7 +33,7 @@
     },
     {
       "venue": "Fingers Piano Bar",
-      "address": "",
+      "address": "61A Frederick St, Edinburgh EH2 1LH",
       "mapUrl": "https://maps.app.goo.gl/BCSxbDRgiruqSk7X9",
       "sessions": [{ "day": "Mondays", "dates": [10, 17, 24], "time": "21:00" }]
     }
