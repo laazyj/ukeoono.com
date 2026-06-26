@@ -425,11 +425,6 @@ footer.site {
 .follow-row {
   margin: 1.3rem 0;
 }
-.qr img {
-  background: var(--cream);
-  padding: 0.5rem;
-  border-radius: 4px;
-}
 .contact-line {
   color: var(--cream-dim);
   font-size: 0.92rem;
