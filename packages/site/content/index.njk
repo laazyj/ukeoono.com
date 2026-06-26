@@ -57,9 +57,6 @@ title: ""
       <p class="follow-row">
         {% if s.instagram %}<a class="btn btn--primary" href="{{ s.instagram }}" rel="external">Follow on Instagram</a>{% else %}<span class="btn btn--ghost is-disabled" aria-disabled="true">Instagram — coming soon</span>{% endif %}
       </p>
-      {% if site.qrTarget %}
-      <p class="qr"><img src="{{ '/qr.png' | rel }}" alt="Scan for {{ site.title }} on the web" width="160" height="160" /></p>
-      {% endif %}
       <p class="contact-line">
         Bookings or hellos? {% include "partials/email-link.njk" %}
       </p>
