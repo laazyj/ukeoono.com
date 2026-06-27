@@ -19,7 +19,8 @@ npm dependency, so it will not be on PATH in a fresh clone or in CI. When it is
 missing the hook prints `pre-commit: gitleaks not found in PATH.` and exits
 non-zero. That is expected, not a failure to debug.
 
-If your staged changes contain no secrets, bypass the hook with:
+If gitleaks is on PATH, just commit; the scan passes for secret-free changes.
+Only when it is missing, and your changes contain no secrets, bypass it with:
 
 ```sh
 git commit --no-verify -m "..."
