@@ -63,6 +63,7 @@ title: ""
             <li class="session">
               <span class="session-day">{{ sp.day }}</span>
               <span class="session-dates">{{ sp.dateLabel }}</span>
+              {% if sp.startTime %}<span class="session-time">{{ sp.startTime }}&ndash;{{ sp.endTime }}</span>{% endif %}
             </li>
           </ul>
           <p class="special-blurb">{{ sp.blurb }}</p>

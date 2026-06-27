@@ -426,6 +426,9 @@ footer.site {
   letter-spacing: 0.02em;
   color: var(--red-deep);
   font-variant-numeric: tabular-nums;
+  /* Keep ranges like "12:00–22:00" on a single line rather than breaking at
+     the dash; single Fringe times are unaffected. */
+  white-space: nowrap;
 }
 
 /* ------------------------------ Special (off-Fringe gig) ------------- */
@@ -452,6 +455,19 @@ footer.site {
   margin: 0.9rem 0 0;
   color: var(--ink-soft);
   font-size: 1.02rem;
+}
+/* On narrow phones the single special session (day + full date + a time range)
+   can't share one row, so let the time drop onto its own line under the date.
+   Wider single-column and the desktop two-column layout keep it inline/right. */
+@media (max-width: 620px) {
+  .ticket--special .session {
+    grid-template-columns: auto 1fr;
+  }
+  .ticket--special .session-time {
+    grid-column: 1 / -1;
+    justify-self: start;
+    margin-top: 0.1rem;
+  }
 }
 .special-row {
   display: flex;

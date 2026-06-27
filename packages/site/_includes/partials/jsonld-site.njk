@@ -60,8 +60,10 @@
       "@id": "{{ site.url }}/#gig-{{ site.special.date }}",
       "name": {{ (site.author.name + " at " + site.special.name) | dump | safe }},
       "description": {{ site.special.blurb | dump | safe }},
-      "startDate": "{{ site.special.date }}",
-      "eventStatus": "https://schema.org/EventScheduled",
+      {% if site.special.startTime %}"startDate": "{{ site.special.date }}T{{ site.special.startTime }}:00+00:00",
+      "endDate": "{{ site.special.date }}T{{ site.special.endTime }}:00+00:00",
+      {% else %}"startDate": "{{ site.special.date }}",
+      {% endif %}"eventStatus": "https://schema.org/EventScheduled",
       "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
       "isAccessibleForFree": false,
       "offers": {
