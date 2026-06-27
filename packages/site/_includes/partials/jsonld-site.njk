@@ -54,7 +54,38 @@
         "address": {{ e.address | dump | safe }}{% endif %}{% if e.mapUrl %},
         "hasMap": {{ e.mapUrl | dump | safe }}{% endif %}
       }
-    }{% endfor %}
+    }{% endfor %}{% if site.special %},
+    {
+      "@type": "Event",
+      "@id": "{{ site.url }}/#gig-{{ site.special.date }}",
+      "name": {{ (site.author.name + " at " + site.special.name) | dump | safe }},
+      "description": {{ site.special.blurb | dump | safe }},
+      {% if site.special.startTime %}"startDate": "{{ site.special.date }}T{{ site.special.startTime }}:00+00:00",
+      "endDate": "{{ site.special.date }}T{{ site.special.endTime }}:00+00:00",
+      {% else %}"startDate": "{{ site.special.date }}",
+      {% endif %}"eventStatus": "https://schema.org/EventScheduled",
+      "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+      "isAccessibleForFree": false,
+      "offers": {
+        "@type": "Offer",
+        "availability": "https://schema.org/InStock",
+        "url": {{ site.special.promoter.url | dump | safe }}
+      },
+      "image": [{{ ogImage | dump | safe }}],
+      "inLanguage": "{{ site.language }}",
+      "performer": { "@id": "{{ site.author.id }}" },
+      "superEvent": {
+        "@type": "Festival",
+        "name": {{ site.special.name | dump | safe }},
+        "url": {{ site.special.promoter.url | dump | safe }}
+      },
+      "location": {
+        "@type": "Place",
+        "name": {{ site.special.venue | dump | safe }}{% if site.special.address %},
+        "address": {{ site.special.address | dump | safe }}{% endif %}{% if site.special.mapUrl %},
+        "hasMap": {{ site.special.mapUrl | dump | safe }}{% endif %}
+      }
+    }{% endif %}
   ]
 }
 </script>
