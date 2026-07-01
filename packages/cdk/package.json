@@ -69,22 +69,22 @@
     }
   },
   "dependencies": {
-    "@composurecdk/acm": "^0.8.4",
-    "@composurecdk/budgets": "^0.8.4",
-    "@composurecdk/cloudformation": "^0.8.4",
-    "@composurecdk/cloudfront": "^0.8.4",
-    "@composurecdk/cloudwatch": "^0.8.4",
-    "@composurecdk/core": "^0.8.4",
-    "@composurecdk/iam": "^0.8.4",
-    "@composurecdk/route53": "^0.8.4",
-    "@composurecdk/s3": "^0.8.4",
-    "@composurecdk/sns": "^0.8.4",
+    "@composurecdk/acm": "^0.8.7",
+    "@composurecdk/budgets": "^0.8.7",
+    "@composurecdk/cloudformation": "^0.8.7",
+    "@composurecdk/cloudfront": "^0.8.7",
+    "@composurecdk/cloudwatch": "^0.8.7",
+    "@composurecdk/core": "^0.8.7",
+    "@composurecdk/iam": "^0.8.7",
+    "@composurecdk/route53": "^0.8.7",
+    "@composurecdk/s3": "^0.8.7",
+    "@composurecdk/sns": "^0.8.7",
     "aws-cdk-lib": "^2.260.0",
     "constructs": "^10.6.0"
   },
   "devDependencies": {
-    "@types/node": "^26.0.1",
-    "aws-cdk": "^2.1128.1",
+    "@types/node": "^26.1.0",
+    "aws-cdk": "^2.1129.0",
     "vitest": "^4.1.9"
   }
 }
