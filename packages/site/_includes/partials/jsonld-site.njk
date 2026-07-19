@@ -19,7 +19,7 @@
       "url": "{{ site.url }}/",
       "description": {{ site.description | dump | safe }},
       "areaServed": {{ (site.city + ", Scotland") | dump | safe }},
-      "sameAs": {{ [site.social.instagram] | compact | dump | safe }}
+      "sameAs": {{ [site.social.instagram, site.social.facebook] | compact | dump | safe }}
     }{% for p in site.team %},
     {{ p | personNode | dump | safe }}{% endfor %}{% for e in eventList %},
     {
