@@ -22,22 +22,23 @@
       "sameAs": {{ [site.social.instagram, site.social.facebook] | compact | dump | safe }}
     }{% for p in site.team %},
     {{ p | personNode | dump | safe }}{% endfor %}{% for e in eventList %},
+    {% set fest = e.festival or site.festival %}
     {
       "@type": "Event",
       "@id": "{{ site.url }}/#gig-{{ e.startDate }}",
       "name": {{ (site.author.name + " — " + site.show.title) | dump | safe }},
-      "description": {{ site.show.blurb | dump | safe }},
+      "description": {{ (e.blurb or site.show.blurb) | dump | safe }},
       "startDate": "{{ e.startDate }}",
       "endDate": "{{ e.endDate }}",
       "eventStatus": "https://schema.org/EventScheduled",
       "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
-      "isAccessibleForFree": true,
-      "offers": {
-        "@type": "Offer",
+      {% if not e.ticketsUrl %}"isAccessibleForFree": true,
+      {% endif %}"offers": {
+        "@type": "Offer",{% if not e.ticketsUrl %}
         "price": "0",
-        "priceCurrency": "GBP",
+        "priceCurrency": "GBP",{% endif %}
         "availability": "https://schema.org/InStock",
-        "url": "{{ site.url }}/"
+        "url": {{ (e.ticketsUrl or site.url + "/") | dump | safe }}
       },
       "image": [{{ ogImage | dump | safe }}],
       "inLanguage": "{{ site.language }}",
@@ -45,8 +46,8 @@
       "performer": { "@id": "{{ site.author.id }}" },
       "superEvent": {
         "@type": "Festival",
-        "name": {{ site.festival.name | dump | safe }}{% if site.festival.url %},
-        "url": {{ site.festival.url | dump | safe }}{% endif %}
+        "name": {{ fest.name | dump | safe }}{% if fest.url %},
+        "url": {{ fest.url | dump | safe }}{% endif %}
       },
       "location": {
         "@type": "Place",

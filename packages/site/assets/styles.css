@@ -420,17 +420,26 @@ footer.site {
   text-underline-offset: 3px;
 }
 
-.venue-address {
+/* Sub-lines under a venue name: the address, and the note flagging a gig that
+   sits inside the August run but belongs to another festival, so the free-in,
+   no-ticket promise of the Free Fringe dates does not read as covering it. */
+.venue-address,
+.venue-note {
   margin: 0 0 0.7rem;
   color: var(--ink-soft);
   font-size: 0.9rem;
 }
 
-.venue-address a {
+.venue-address a,
+.venue-note a {
   color: var(--ink);
   text-decoration-color: var(--red);
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
+}
+
+.venue-note {
+  font-style: italic;
 }
 
 .session-list {
@@ -502,7 +511,9 @@ footer.site {
   transform: rotate(-1deg);
 }
 
-.special-blurb {
+/* A line of flyer copy under the times, on either kind of ticket stub. */
+.special-blurb,
+.venue-blurb {
   margin: 0.9rem 0 0;
   color: var(--ink-soft);
   font-size: 1.02rem;

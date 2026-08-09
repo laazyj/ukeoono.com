@@ -34,6 +34,7 @@ title: ""
             {% if v.mapUrl %}<a href="{{ v.mapUrl }}" rel="external">{{ v.venue }}</a>{% else %}{{ v.venue }}{% endif %}
           </h3>
           {% if v.address %}<p class="venue-address">{{ v.address }}</p>{% endif %}
+          {% if v.festival %}<p class="venue-note">Part of the <a href="{{ v.festival.url }}" rel="external">{{ v.festival.name }}</a>, not the Free Fringe{% if v.ticketsUrl %}, so <a href="{{ v.ticketsUrl }}" rel="external">grab a ticket</a> from them first{% endif %}.</p>{% endif %}
           <ul class="session-list">
             {% for sess in v.sessions %}
             <li class="session">
@@ -43,6 +44,7 @@ title: ""
             </li>
             {% endfor %}
           </ul>
+          {% if v.blurb %}<p class="venue-blurb">{{ v.blurb }}</p>{% endif %}
         </article>
         {% endfor %}
       </div>
