@@ -36,6 +36,18 @@
       "address": "61A Frederick St, Edinburgh EH2 1LH",
       "mapUrl": "https://maps.app.goo.gl/BCSxbDRgiruqSk7X9",
       "sessions": [{ "day": "Mondays", "dates": [10, 17, 24], "time": "21:00" }]
+    },
+    {
+      "venue": "The Scottish Parliament",
+      "address": "Holyrood, Edinburgh EH99 1SP",
+      "mapUrl": "https://www.parliament.scot/visit-and-learn/visit-us",
+      "festival": {
+        "name": "Festival of Politics",
+        "url": "https://www.festivalofpolitics.scot/"
+      },
+      "ticketsUrl": "https://www.festivalofpolitics.scot/",
+      "blurb": "Ukuleles at Holyrood. Same ballads, same bangers, considerably grander surroundings.",
+      "sessions": [{ "day": "Thursday", "dates": [27], "time": "17:45" }]
     }
   ],
   "special": {
