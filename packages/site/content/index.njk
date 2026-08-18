@@ -50,13 +50,13 @@ title: ""
       </div>
     </section>
 
-    {% set sp = site.special %}
-    {% if sp %}
+    {% if site.specials.length %}
     <section class="special" id="beyond" aria-labelledby="beyond-head">
       <h2 class="section-head" id="beyond-head">Beyond the Fringe</h2>
       <div class="ticket ticket--special">
+        {% for sp in site.specials %}
         <article class="venue">
-          <p class="special-eyebrow">One day only · not part of the Free Fringe</p>
+          {% if sp.eyebrow %}<p class="special-eyebrow">{{ sp.eyebrow }}</p>{% endif %}
           <h3 class="venue-name">
             <a href="{{ sp.promoter.url }}" rel="external">{{ sp.name }}</a>
           </h3>
@@ -65,15 +65,16 @@ title: ""
             <li class="session">
               <span class="session-day">{{ sp.day }}</span>
               <span class="session-dates">{{ sp.dateLabel }}</span>
-              {% if sp.startTime %}<span class="session-time">{{ sp.startTime }}&ndash;{{ sp.endTime }}</span>{% endif %}
+              {% if sp.timeLabel %}<span class="session-time">{{ sp.timeLabel }}</span>{% endif %}
             </li>
           </ul>
           <p class="special-blurb">{{ sp.blurb }}</p>
           <p class="special-row">
-            <a class="btn btn--primary" href="{{ sp.promoter.url }}" rel="external">{{ sp.ticketsLabel }}</a>
-            <span class="special-promoter">Tickets and info at <a href="{{ sp.promoter.url }}" rel="external">{{ sp.promoter.name }}</a>.</span>
+            {% if sp.ticketsUrl %}<a class="btn btn--primary" href="{{ sp.ticketsUrl }}" rel="external">{{ sp.ticketsLabel }}</a>{% endif %}
+            <span class="special-promoter">{% if sp.ticketsUrl %}Tickets and info at{% else %}Hosted by{% endif %} <a href="{{ sp.promoter.url }}" rel="external">{{ sp.promoter.name }}</a>.</span>
           </p>
         </article>
+        {% endfor %}
       </div>
     </section>
     {% endif %}
