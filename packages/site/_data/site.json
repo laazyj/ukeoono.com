@@ -50,23 +50,45 @@
       "sessions": [{ "day": "Thursday", "dates": [27], "time": "17:45" }]
     }
   ],
-  "special": {
-    "name": "The Beatles Marathon UK",
-    "blurb": "A full day of Fab Four hits, played by local bands. We are bringing the ukuleles.",
-    "venue": "Portobello Town Hall",
-    "address": "147 Portobello High St, Edinburgh EH15 1AF",
-    "mapUrl": "https://maps.app.goo.gl/cJTAhUH4ydYxbqaZ7",
-    "day": "Saturday",
-    "date": "2026-11-14",
-    "dateLabel": "14 November 2026",
-    "startTime": "12:00",
-    "endTime": "22:00",
-    "ticketsLabel": "Tickets on sale now",
-    "promoter": {
-      "name": "Beatles Marathon",
-      "url": "https://www.beatlesmarathon.com/"
+  "specials": [
+    {
+      "name": "Leith St Andrew's Open Day",
+      "eyebrow": "One afternoon only · free in, just turn up",
+      "blurb": "The Trust are throwing the doors of the old Easter Road church wide open: stalls, circus, and live music all day. We are on mid afternoon, ukuleles at the ready.",
+      "venue": "Leith St Andrew's Parish Church",
+      "address": "410-412 Easter Road, Edinburgh EH6 8HT",
+      "mapUrl": "https://maps.google.com/?q=410-412+Easter+Road,+Edinburgh+EH6+8HT",
+      "day": "Saturday",
+      "date": "2026-09-05",
+      "dateLabel": "5 September 2026",
+      "timeLabel": "14:30",
+      "startTime": "14:30",
+      "promoter": {
+        "name": "Leith St Andrews Trust",
+        "url": "https://leithstandrewstrust.org/"
+      }
+    },
+    {
+      "name": "The Beatles Marathon UK",
+      "eyebrow": "One day only · not part of the Free Fringe",
+      "blurb": "A full day of Fab Four hits, played by local bands. We are bringing the ukuleles.",
+      "venue": "Portobello Town Hall",
+      "address": "147 Portobello High St, Edinburgh EH15 1AF",
+      "mapUrl": "https://maps.app.goo.gl/cJTAhUH4ydYxbqaZ7",
+      "day": "Saturday",
+      "date": "2026-11-14",
+      "dateLabel": "14 November 2026",
+      "timeLabel": "12:00–22:00",
+      "startTime": "12:00",
+      "endTime": "22:00",
+      "ticketsUrl": "https://www.beatlesmarathon.com/",
+      "ticketsLabel": "Tickets on sale now",
+      "promoter": {
+        "name": "Beatles Marathon",
+        "url": "https://www.beatlesmarathon.com/"
+      }
     }
-  },
+  ],
   "social": {
     "instagram": "https://www.instagram.com/ukeoono/",
     "facebook": "https://facebook.com/ukeoono/"

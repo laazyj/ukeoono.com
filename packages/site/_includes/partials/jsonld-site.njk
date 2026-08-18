@@ -26,7 +26,7 @@
     {
       "@type": "Event",
       "@id": "{{ site.url }}/#gig-{{ e.startDate }}",
-      "name": {{ (site.author.name + " — " + site.show.title) | dump | safe }},
+      "name": {{ (e.name or site.author.name + " — " + site.show.title) | dump | safe }},
       "description": {{ (e.blurb or site.show.blurb) | dump | safe }},
       "startDate": "{{ e.startDate }}",
       "endDate": "{{ e.endDate }}",
@@ -45,7 +45,7 @@
       "organizer": { "@id": "{{ site.author.id }}" },
       "performer": { "@id": "{{ site.author.id }}" },
       "superEvent": {
-        "@type": "Festival",
+        "@type": "{{ fest.type or "Festival" }}",
         "name": {{ fest.name | dump | safe }}{% if fest.url %},
         "url": {{ fest.url | dump | safe }}{% endif %}
       },
@@ -55,38 +55,7 @@
         "address": {{ e.address | dump | safe }}{% endif %}{% if e.mapUrl %},
         "hasMap": {{ e.mapUrl | dump | safe }}{% endif %}
       }
-    }{% endfor %}{% if site.special %},
-    {
-      "@type": "Event",
-      "@id": "{{ site.url }}/#gig-{{ site.special.date }}",
-      "name": {{ (site.author.name + " at " + site.special.name) | dump | safe }},
-      "description": {{ site.special.blurb | dump | safe }},
-      {% if site.special.startTime %}"startDate": "{{ site.special.date }}T{{ site.special.startTime }}:00+00:00",
-      "endDate": "{{ site.special.date }}T{{ site.special.endTime }}:00+00:00",
-      {% else %}"startDate": "{{ site.special.date }}",
-      {% endif %}"eventStatus": "https://schema.org/EventScheduled",
-      "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
-      "isAccessibleForFree": false,
-      "offers": {
-        "@type": "Offer",
-        "availability": "https://schema.org/InStock",
-        "url": {{ site.special.promoter.url | dump | safe }}
-      },
-      "image": [{{ ogImage | dump | safe }}],
-      "inLanguage": "{{ site.language }}",
-      "performer": { "@id": "{{ site.author.id }}" },
-      "superEvent": {
-        "@type": "Festival",
-        "name": {{ site.special.name | dump | safe }},
-        "url": {{ site.special.promoter.url | dump | safe }}
-      },
-      "location": {
-        "@type": "Place",
-        "name": {{ site.special.venue | dump | safe }}{% if site.special.address %},
-        "address": {{ site.special.address | dump | safe }}{% endif %}{% if site.special.mapUrl %},
-        "hasMap": {{ site.special.mapUrl | dump | safe }}{% endif %}
-      }
-    }{% endif %}
+    }{% endfor %}
   ]
 }
 </script>

@@ -490,9 +490,9 @@ footer.site {
 
 /* ------------------------------ Special (off-Fringe gig) ------------- */
 
-/* A one-off, ticketed show that sits apart from the Free Fringe run. Carried
-   on the same cream ticket stub, but flagged with an ink banner and linked out
-   to the promoter so it reads as separate from the August dates. */
+/* One-off shows that sit apart from the Free Fringe run, ticketed or free.
+   Carried on the same cream ticket stub, but each flagged with an ink banner
+   and linked out to its host so they read as separate from the August dates. */
 .ticket--special {
   position: relative;
 }
@@ -519,7 +519,7 @@ footer.site {
   font-size: 1.02rem;
 }
 
-/* On narrow phones the single special session (day + full date + a time range)
+/* On narrow phones a special session (day + full date + a time or a range)
    can't share one row, so let the time drop onto its own line under the date.
    Wider single-column and the desktop two-column layout keep it inline/right. */
 @media (width <= 620px) {
