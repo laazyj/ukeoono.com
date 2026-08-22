@@ -32,7 +32,7 @@ import {
   type DistributionBuilderResult,
 } from "@composurecdk/cloudfront";
 import { createTopicBuilder, type TopicBuilderResult } from "@composurecdk/sns";
-import { outputs } from "@composurecdk/cloudformation";
+import { constraints, outputs } from "@composurecdk/cloudformation";
 
 import { buildRedirectFunctionCode } from "./redirect-function.js";
 
@@ -50,6 +50,15 @@ export interface SystemStacks {
    */
   readonly cdnAlarmsStack: Stack;
 }
+
+/**
+ * The CloudFront Function's own comment lands at `FunctionConfig.Comment`, a
+ * nested path `templateTextPolicy` documents as out of its reach, so the ASCII
+ * rule is applied here by hand instead. Without it the one field that actually
+ * held a non-ASCII character is the one field nothing guards.
+ */
+const REDIRECT_FUNCTION_COMMENT = "www to apex 301 + pretty-URL rewrite";
+constraints.validate.templateText(REDIRECT_FUNCTION_COMMENT, "redirect function comment");
 
 const topicArnOutput = (refName: "usEast1Alerts" | "siteAlerts", role: string) => ({
   value: ref<TopicBuilderResult>(refName)
@@ -150,7 +159,7 @@ export function createSystem(stacks: SystemStacks, options: SystemOptions) {
               functionName: `${siteStack.stackName}-redirect`,
               runtime: FunctionRuntime.JS_2_0,
               code: FunctionCode.fromInline(buildRedirectFunctionCode(domain)),
-              comment: "www→apex 301 + pretty-URL rewrite",
+              comment: REDIRECT_FUNCTION_COMMENT,
             },
           ],
         })
@@ -215,7 +224,7 @@ export function createSystem(stacks: SystemStacks, options: SystemOptions) {
       outputs({
         DistributionDomainName: {
           value: distribution.map((d) => d.distributionDomainName),
-          description: "CloudFront domain — point the apex and www CNAMEs at this in Cloudflare.",
+          description: "CloudFront domain. Point the apex and www CNAMEs at this in Cloudflare.",
           scope: "cdn",
         },
         SiteBucketName: {

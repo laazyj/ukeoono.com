@@ -184,6 +184,18 @@ The deploy role's trust policy is restricted to two exact subject claims —
 npx nx run @uke-o-ono/cdk:test
 ```
 
+### Template text is ASCII-only
+
+CloudFormation stores template text as ASCII and silently transliterates
+anything else (an em-dash, a curly quote) to `?` at deploy time, so the deployed
+template stops matching the synthesised one and `cdk diff` reports a change on
+every run forever after. composureCDK's `templateTextPolicy`, applied to the
+`App` in [`src/app.ts`](./src/app.ts), fails synth instead. If a test dies
+naming a `U+XXXX` character, replace it with its ASCII equivalent rather than
+regenerating the snapshot. The policy cannot see nested properties, so the
+CloudFront Function's `FunctionConfig.Comment` is checked by hand in
+[`src/system.ts`](./src/system.ts).
+
 [`test/app.test.ts`](./test/app.test.ts) synthesises every stack, snapshots the
 CloudFormation, and adds functional assertions for invariants that must hold
 regardless of refactors (distribution aliases + imported cert ARN, budget limit,

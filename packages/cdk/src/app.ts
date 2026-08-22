@@ -2,6 +2,8 @@ import { App, Stack } from "aws-cdk-lib";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { templateTextPolicy } from "@composurecdk/cloudformation";
+
 import { addCiOidc } from "./stacks/ci-oidc-stack.js";
 import { createSystem } from "./system.js";
 
@@ -39,6 +41,12 @@ export interface BuildAppOptions {
 export function buildApp({ account, siteContentPath, alertEmail, certArn }: BuildAppOptions): App {
   const app = new App();
 
+  // Fail synth on template text CloudFormation would transliterate, rather than
+  // live with the `cdk diff` noise it causes forever after. `functionCode` is
+  // not in the policy's default registry, and the redirect function's inline JS
+  // carries prose comments.
+  templateTextPolicy(app, { fields: { "AWS::CloudFront::Function": ["functionCode"] } });
+
   // Both ends of a cross-region ref must opt in, so every stack sets the flag.
   const stackProps = (region: string) => ({
     env: { account, region },
@@ -54,7 +62,7 @@ export function buildApp({ account, siteContentPath, alertEmail, certArn }: Buil
 
   const siteStack = new Stack(app, "UkeOOnoSiteStack", {
     ...stackProps(CONFIG.primaryRegion),
-    description: `${CONFIG.domain} — static site on CloudFront + S3.`,
+    description: `Static site for ${CONFIG.domain} on CloudFront + S3.`,
   });
 
   // CloudFront and Route 53 health-check metrics emit only in us-east-1, so

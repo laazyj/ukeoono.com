@@ -71,7 +71,7 @@
   "dependencies": {
     "@composurecdk/acm": "^0.9.4",
     "@composurecdk/budgets": "^0.9.4",
-    "@composurecdk/cloudformation": "^0.9.4",
+    "@composurecdk/cloudformation": "^0.9.5",
     "@composurecdk/cloudfront": "^0.9.4",
     "@composurecdk/cloudwatch": "^0.9.4",
     "@composurecdk/core": "^0.9.4",
