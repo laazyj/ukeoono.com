@@ -1,8 +1,8 @@
 {
-  "Description": "uke-o-ono.com — static site on CloudFront + S3.",
+  "Description": "Static site for uke-o-ono.com on CloudFront + S3.",
   "Outputs": {
     "DistributionDomainName": {
-      "Description": "CloudFront domain — point the apex and www CNAMEs at this in Cloudflare.",
+      "Description": "CloudFront domain. Point the apex and www CNAMEs at this in Cloudflare.",
       "Value": {
         "Fn::GetAtt": [
           "ukeoonocomcdn77D9C41B",
@@ -716,7 +716,7 @@ function handler(event) {
   var hasExtension = lastDot > lastSlash;
 
   // Eleventy emits pretty URLs as <path>/index.html. CloudFront's
-  // defaultRootObject only rewrites "/" → "/index.html", so map directory-
+  // defaultRootObject only rewrites "/" to "/index.html", so map directory-
   // style requests onto their index file before the S3 origin sees them.
   if (uri.endsWith("/")) {
     req.uri = uri + "index.html";
@@ -727,7 +727,7 @@ function handler(event) {
   return req;
 }",
         "FunctionConfig": {
-          "Comment": "www→apex 301 + pretty-URL rewrite",
+          "Comment": "www to apex 301 + pretty-URL rewrite",
           "Runtime": "cloudfront-js-2.0",
         },
         "Name": "UkeOOnoSiteStack-redirect",

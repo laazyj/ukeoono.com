@@ -1,4 +1,4 @@
-import { type App, type Stack } from "aws-cdk-lib";
+import { CfnOutput, type App, type Stack } from "aws-cdk-lib";
 import { Match, Template } from "aws-cdk-lib/assertions";
 import { resolve } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
@@ -87,6 +87,25 @@ describe("app synthesis", () => {
       const template = stackTemplate(app, "UkeOOnoCdnAlarmsStack");
       const alarmCount = Object.keys(template.findResources("AWS::CloudWatch::Alarm")).length;
       expect(alarmCount).toBeGreaterThanOrEqual(5);
+    });
+  });
+
+  // The four snapshots above are all ASCII today, so nothing else in this file
+  // fails if the `templateTextPolicy` call is dropped from `buildApp`. This
+  // pins it: synth must reject text CloudFormation would transliterate, which
+  // is what keeps `cdk diff` quiet on stacks nobody touched.
+  describe("template text policy", () => {
+    it("fails synth on a character CloudFormation cannot store", () => {
+      const policed = buildApp({
+        account: "111111111111",
+        siteContentPath: resolve(import.meta.dirname, "fixtures", "site"),
+        alertEmail: "alerts@example.invalid",
+        certArn: CERT_ARN,
+      });
+      const stack = policed.node.findChild("UkeOOnoSiteStack") as Stack;
+      new CfnOutput(stack, "EmDash", { value: "x", description: "an em-dash — here" });
+
+      expect(() => Template.fromStack(stack)).toThrow(/U\+2014/);
     });
   });
 
