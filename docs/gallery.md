@@ -1,7 +1,9 @@
 # Gallery page — design options and technical plan
 
-_Status: proposal. Nothing here is built yet. Pick a design (§2), confirm the
-hosting decision (§3), and the rest follows._
+_Status: proposal. Nothing here is built yet._
+
+_Settled: photos are self-hosted, video goes on YouTube (§3, §6). Outstanding:
+pick a design (§2), and the rest follows._
 
 ## 1. What we're solving
 
@@ -24,6 +26,7 @@ Constraints we're designing inside:
 | No framework                  | The site ships zero JS today beyond a 12-line email decoder             |
 | Poster aesthetic              | Vermillion red, cream ticket stubs, Anton caps, grain and erosion masks |
 | Non-developer upload path     | The band should be able to add a gig's photos without touching Eleventy |
+| Cheap to reach people         | The gallery should feed the band's channels, not be a cul-de-sac        |
 
 ### The blocker nobody would guess
 
@@ -120,34 +123,70 @@ would want a hard cap of one year per page view.
 
 ## 3. Where the media lives
 
-**A second S3 bucket, served by the existing CloudFront distribution under a
-`/media/*` cache behaviour.**
+**Photos in a second S3 bucket, served by the existing CloudFront distribution
+under a `/media/*` cache behaviour. Video on YouTube.**
 
 ```
 uke-o-ono.com  ──▶  CloudFront (existing distribution, existing cert)
                       ├─ default behaviour  ──▶ site bucket   (Eleventy dist/, pruned on deploy)
-                      └─ /media/*           ──▶ media bucket  (never pruned, never in git)
+                      └─ /media/*           ──▶ media bucket  (photos + video posters)
+
+youtube.com/@ukeoono ──▶ every video, streamed by Google.
+                         Nothing is requested from them until a viewer
+                         presses play on a tile (§6).
 ```
 
 Why this and not the alternatives:
 
-| Option                           | Verdict                                                                                                                                                                                                                                                          |
-| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Media in `packages/site/static/` | **No.** Pruned-deploy and Lambda-staging problems above, plus hundreds of MB of binaries in git forever.                                                                                                                                                         |
-| Second bucket, same distribution | **Yes.** Same origin so no CORS and no extra DNS round trip, and the existing apex cert already covers it. One new behaviour in `system.ts`.                                                                                                                     |
-| `media.uke-o-ono.com` subdomain  | Works, but needs a new ACM cert, a new Cloudflare record, and a cross-origin hop. No upside.                                                                                                                                                                     |
-| Cloudinary / Cloudflare Images   | Excellent tooling, on-the-fly resizing, no ffmpeg to babysit. But it adds a third-party dependency, a monthly bill, and a privacy-policy entry for a site whose whole pitch is that it doesn't phone anyone. Revisit only if the ingest script becomes a burden. |
-| YouTube / Instagram embeds only  | Free and zero-ops, but we don't own the presentation, the embeds are heavy trackers, and the page becomes a list of other people's players. Keep as the escape hatch for **long** video only (§6).                                                               |
+| Option                           | Verdict                                                                                                                                                                                                                         |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Media in `packages/site/static/` | **No.** Pruned-deploy and Lambda-staging problems above, plus hundreds of MB of binaries in git forever.                                                                                                                        |
+| Second bucket, same distribution | **Yes.** Same origin so no CORS and no extra DNS round trip, and the existing apex cert already covers it. One new behaviour in `system.ts`.                                                                                    |
+| `media.uke-o-ono.com` subdomain  | Works, but needs a new ACM cert, a new Cloudflare record, and a cross-origin hop. No upside.                                                                                                                                    |
+| Cloudinary / Cloudflare Images   | Excellent tooling, on-the-fly resizing. But it adds a third-party dependency, a monthly bill, and a privacy-policy entry, for photos we can serve perfectly well ourselves. Revisit only if the ingest script becomes a burden. |
+| Video in the media bucket        | **No.** It works, but we would pay every byte of egress, maintain an ffmpeg pipeline, cap clip length to control the bill, and get nothing back for it. See below.                                                              |
+| Video on YouTube                 | **Yes.** Google pays the bandwidth, the player is one every viewer already knows, and the channel is a marketing surface an MP4 in a bucket will never be (§6).                                                                 |
+
+### Why video goes to YouTube and photos do not
+
+The two file types pull in opposite directions, so they get opposite answers.
+
+Photos are small, we want them art-directed (the greyscale-and-red treatment is
+half the design), and serving them ourselves costs pennies. Keep them.
+
+Video is the exact inverse:
+
+- **Bandwidth stops being ours.** Video was the only real cost risk in this
+  plan. It disappears.
+- **The ffmpeg pipeline disappears with it.** No transcode ladder, no poster
+  extraction, no `+faststart`, no 45-second cap invented purely to control a
+  bill. A phone clip gets uploaded from the phone, in the YouTube app, at the
+  bar. That is a much better odds of actually happening than "wait for someone
+  to run the ingest script".
+- **The player is better than ours would be.** Adaptive bitrate on a bad 4G
+  connection, quality selection, captions, playback speed, casting to a TV,
+  and an interface nobody has to learn.
+- **It is a second front door.** A video in an S3 bucket is invisible. A video
+  on a channel is searchable, suggestable, and subscribable, and vertical phone
+  clips become Shorts, which is currently the cheapest reach on the internet.
+- **It is an offsite backup** of the one media type we would otherwise hold in
+  exactly one place.
+
+What we give up, honestly: some control of presentation (YouTube's chrome, and
+YouTube may run ads on our videos whether or not we monetise them), and a
+dependency on a platform that could take a video down. §6 covers the second
+one, which for a covers band is not hypothetical.
 
 Cost, at a realistic five years of gigging:
 
-- ~1,200 photos × 5 derivatives ≈ 2.5 GB, ~150 clips ≈ 3 GB. Call it **6 GB**
-  stored, about **$0.14/month** in S3.
-- Transfer is the variable. CloudFront `PRICE_CLASS_100` egress is roughly
-  $0.085/GB. Photo-only browsing is cheap: a full page of thumbs is under 1 MB.
-  Video is where a bill appears, which is why §6 caps clip size.
-- **Action:** raise the budget alarm in `system.ts` from $4 to $10 before this
-  ships, so the first busy month doesn't page anyone at 3am.
+- ~1,200 photos × 5 derivatives ≈ 2.5 GB, plus ~150 video posters ≈ 0.1 GB.
+  Call it **2.6 GB** stored, about **$0.06/month** in S3.
+- Transfer is photos only now. CloudFront `PRICE_CLASS_100` egress is roughly
+  $0.085/GB, and a full page of thumbs is under 1 MB, so a busy month is well
+  under a dollar.
+- **The $4 budget alarm can stay where it is.** Raising it was only ever
+  protection against a video bill. Worth watching for the first season rather
+  than pre-emptively raising.
 
 ## 4. The data model
 
@@ -202,6 +241,33 @@ One entry per photo or clip, in `_data/media/<gig-slug>.json`:
 - `w`/`h` are the original dimensions, used for `aspect-ratio` so there is zero
   layout shift.
 
+A clip is the same record with a `youtube` id instead of image derivatives,
+and a `base` that points at its **self-hosted** poster:
+
+```json
+{
+  "id": "2026-08-22-bowlers-rest/v2",
+  "type": "video",
+  "gig": "2026-08-22-bowlers-rest",
+  "date": "2026-08-22",
+  "youtube": "aBcDeFgHiJk",
+  "base": "/media/2026/08/bowlers-22-v2-poster.7c1e04",
+  "w": 1920,
+  "h": 1080,
+  "seconds": 214,
+  "lqip": "data:image/webp;base64,UklGR…",
+  "songs": ["valerie"],
+  "caption": "The one where the fire alarm went off."
+}
+```
+
+The poster being ours, not a hot-linked `i.ytimg.com` thumbnail, is the load
+bearing detail. It is what keeps the grid first-party until someone presses
+play (§6), it lets a video tile take the same greyscale-and-red treatment as
+every photo, and it means the tile still renders if the video ever goes away.
+`w`/`h` carry the clip's real shape, so a vertical phone clip sizes correctly
+next to a landscape one without a special case.
+
 ### Tags
 
 Three axes, all closed vocabularies so we don't end up with "Valerie",
@@ -244,19 +310,32 @@ tiles is roughly 180 KB.
 EXIF is stripped on output. Phone photos carry GPS coordinates, and a public
 gallery is not the place for the band's home addresses.
 
-### Video, via ffmpeg
+### Video, via YouTube
 
-H.264 High / yuv420p / AAC 128k / `+faststart`, capped at 720p and CRF 23, plus
-a JPEG poster pulled at the one-second mark.
+There is no transcode step. The clip is already on YouTube; what the gallery
+builds is its **poster**, which goes through the identical sharp ladder as a
+photo, so a video tile and a photo tile are the same object to the renderer and
+to the CSS.
 
-**Clips are capped at 45 seconds.** That keeps a clip around 15-20 MB, which is
-the difference between a video tile costing a tenth of a penny to serve and
-costing real money. Anything longer belongs on YouTube (§6).
+Ingest takes the poster from `https://i.ytimg.com/vi/<id>/maxresdefault.jpg`
+once, at build time, and a local file overrides it when YouTube's auto-picked
+frame is the one where everybody blinked.
 
-Video tiles render as a poster image with a play badge and **no `<video>` tag at
-all** until clicked. A `<video preload="none">` still costs a connection and a
-range request per tile; a poster with a click handler costs nothing. On click we
-swap in the real element and autoplay it.
+A video tile therefore costs exactly what a photo tile costs: one AVIF
+thumbnail, 10-18 KB. **No iframe, no player script, and no request to Google
+until the tile is clicked.** On click we inject:
+
+```
+https://www.youtube-nocookie.com/embed/<id>?autoplay=1&rel=0&playsinline=1
+```
+
+`rel=0` no longer removes suggested videos (YouTube changed that), it restricts
+them to the same channel, which for us is the right answer anyway: the thing
+that comes up after a clip is another one of ours.
+
+This facade pattern is not a nicety. An iframe per tile on a page with thirty
+clips is thirty connections to Google and a tracking cookie for every visitor
+who never pressed play. The facade is what lets §8 stay true.
 
 ### Progressive loading
 
@@ -294,16 +373,52 @@ work on back/forward. The lightbox is a native `<dialog>` with a `#m/<id>` hash,
 so individual photos are linkable. `prefers-reduced-motion` disables the
 blur-up transition, as the home page already does for its `rise` animation.
 
-## 6. Long video
+## 6. The YouTube channel
 
-Clips over 45 seconds (a full song, a whole set) go to YouTube, and the gallery
-embeds them with a **facade**: our own poster image and play button, with the
-YouTube iframe injected only on click. That is one line in `privacy.md` ("if you
-press play on a YouTube clip, your browser contacts Google") rather than the
-tracking-iframe-on-every-page-load problem, and it keeps our egress bill flat.
+Since the channel is now load-bearing infrastructure rather than an overflow
+bucket, it is worth being deliberate about it.
 
-Instagram is **not** embedded. Its embed script is heavy and it breaks whenever
-Meta feels like it. The existing "Instagram has the latest" link stays as-is.
+**Videos are public, not unlisted.** Unlisted video does not appear on the
+channel, in search, or in suggestions, which forfeits the entire marketing
+argument for being there. If a particular clip should not be public, it should
+probably not be in the gallery either.
+
+**Shoot landscape for the gallery, and do not fight vertical.** A vertical clip
+under three minutes becomes a Short, which is the single best reach YouTube
+currently offers an unknown band. The media record carries the clip's real
+aspect ratio, so both sit in the grid without a special case. Landscape reads
+better in the lightbox; vertical travels further. Post both.
+
+### The thing that could actually bite
+
+Uke O Ono play covers. YouTube's Content ID will match some of them, and the
+realistic outcomes, roughly in order of likelihood, are:
+
+1. **Claimed and monetised by the rights holder.** The video stays up, ads run
+   on it, someone else gets the money. Annoying, survivable, and by far the
+   most common.
+2. **Blocked in some countries.** The gallery tile plays for most visitors and
+   not for others, with no warning on our side.
+3. **Muted audio.** Rare for live performance, more likely if a studio
+   recording is audible in the background.
+4. **Removed.** Uncommon for a live cover; likelier if a video uses someone
+   else's recording.
+
+Three mitigations, none of them expensive:
+
+- **Keep the originals.** They should be kept anyway, and they are the whole
+  escape hatch.
+- **The poster is ours (§5)**, so a dead video degrades to a still frame rather
+  than a broken tile.
+- **The self-hosted path stays available for one-offs.** If a clip we care
+  about gets blocked, transcode that single file by hand and serve it from the
+  media bucket. That is a manual fallback for a handful of items, deliberately
+  not a pipeline: building the automation for a case that may never arrive is
+  how we end up maintaining ffmpeg for nothing.
+
+**Instagram is still not embedded.** Its embed script is heavy and it breaks
+whenever Meta feels like it. The existing "Instagram has the latest" link stays
+as-is. Cross-posting clips to Instagram is a content decision, not a build one.
 
 ## 7. Getting media in
 
@@ -312,20 +427,31 @@ The band take photos on phones. The workflow has to survive that.
 ### Phase 1 — a CLI, run by a developer
 
 ```sh
-# drop files into media-inbox/2026-08-22-bowlers-rest/ then:
+# photos: drop files into media-inbox/2026-08-22-bowlers-rest/ then
 npm run gallery:add -- 2026-08-22-bowlers-rest
+
+# video: upload from the phone first, then hand the script the link
+npm run gallery:video -- 2026-08-22-bowlers-rest https://youtu.be/aBcDeFgHiJk
 ```
 
 `packages/site/scripts/media-ingest.mjs`:
 
 1. Reads EXIF `DateTimeOriginal` to order items and sanity-check the date
    against the gig, then strips all EXIF from the output.
-2. Generates every derivative with `sharp` / `ffmpeg`, content-hashing each stem.
+2. Generates every derivative with `sharp`, content-hashing each stem.
 3. Writes or updates `_data/media/<gig-slug>.json`, preserving captions and
    song tags already written there.
 4. `aws s3 sync`s derivatives to the media bucket with the immutable header.
 5. Prints what changed. The JSON is then committed by hand, so every gallery
    change is a reviewable diff.
+
+The video command is the same script with a different front door: it reads
+title and thumbnail from YouTube's oEmbed endpoint (no API key, no
+authentication), pulls the poster frame, and pushes it through steps 2 to 5
+unchanged. The only thing oEmbed does not return is duration, so the `0:41`
+badge on a tile either gets typed in with `--seconds`, or fetched with a free
+YouTube Data API key kept in the already-gitignored `.env`. The badge is
+cosmetic; the key is optional and never ships to the browser.
 
 `media-inbox/` is gitignored. Originals stay in the band's own cloud storage.
 The repo holds the metadata, S3 holds the derivatives, and neither holds a
@@ -355,18 +481,23 @@ demands metadata is a workflow that stops getting used in October.
   JSON entry and re-deploying. The S3 object can be deleted independently.
 - EXIF stripping (§5) is the non-obvious one. It is easy to forget and hard to
   undo once published.
+- `privacy.md` gains one line for YouTube, in the same shape as the existing
+  analytics paragraph: nothing is sent to Google until you press play, and
+  pressing play loads the player from `youtube-nocookie.com`. That claim is
+  only true because the posters are self-hosted (§5), so the two decisions have
+  to stay married.
 
 ## 9. Build order
 
-| Step | Work                                                                    | Ships                             |
-| ---- | ----------------------------------------------------------------------- | --------------------------------- |
-| 1    | Media bucket + `/media/*` behaviour in `system.ts`; raise budget to $10 | Infrastructure, no visible change |
-| 2    | `_data/gigs.js`, `gigs-archive.json`, `songs.json`, media JSON schema   | Data model                        |
-| 3    | `media-ingest.mjs` with sharp/ffmpeg/sync                               | One gig's media live in S3        |
-| 4    | `/gallery/` page, chosen design, server-rendered first two gigs         | **A usable gallery**              |
-| 5    | Chunk loading, `IntersectionObserver`, lightbox                         | Scales past one screen            |
-| 6    | Filter chips, URL state, deep links                                     | Browsable                         |
-| 7    | YouTube facade for long video; nav link from the flyer                  | Complete                          |
+| Step | Work                                                                   | Ships                             |
+| ---- | ---------------------------------------------------------------------- | --------------------------------- |
+| 1    | Media bucket + `/media/*` behaviour in `system.ts`                     | Infrastructure, no visible change |
+| 2    | `_data/gigs.js`, `gigs-archive.json`, `songs.json`, media JSON schema  | Data model                        |
+| 3    | `media-ingest.mjs` with sharp/sync, plus the YouTube poster front door | One gig's media live in S3        |
+| 4    | `/gallery/` page, chosen design, server-rendered first two gigs        | **A usable gallery**              |
+| 5    | Chunk loading, `IntersectionObserver`, lightbox                        | Scales past one screen            |
+| 6    | Filter chips, URL state, deep links                                    | Browsable                         |
+| 7    | YouTube facade on click, `privacy.md` line, nav link from the flyer    | Complete                          |
 
 Steps 1-4 are the minimum that is worth deploying. Everything after is additive
 and can land a gig at a time.
@@ -376,7 +507,8 @@ and can land a gig at a time.
 1. **Design A, B, or C?** §2 recommends B.
 2. **How much old material is there?** A back catalogue of 300 photos from
    previous years changes the Phase 2 priority considerably.
-3. **Is 45 seconds the right clip cap?** It is a cost decision, not a technical
-   one, and it is easy to change later.
+3. **Is the channel set up, and under whose account?** It wants to be a band
+   account nobody loses access to when a phone is replaced, not one member's
+   personal login. This is now infrastructure.
 4. **Should the gallery link from the flyer's main nav**, or stay a footer link
    until it has enough in it to be worth the click?
