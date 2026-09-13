@@ -69,6 +69,24 @@
       }
     },
     {
+      "name": "The Bowlers Rest Singalong",
+      "eyebrow": "One night only · free in, just turn up",
+      "blurb": "The Fringe is done, the singing is not. A proper singalong session back at our Leith local: bring a voice, bring a ukulele, bring both.",
+      "venue": "Bowlers Rest",
+      "address": "24 Mitchell St, Leith, Edinburgh EH6 7BD",
+      "mapUrl": "https://bowlersrest.com/",
+      "day": "Wednesday",
+      "date": "2026-09-30",
+      "dateLabel": "30 September 2026",
+      "timeLabel": "20:00",
+      "startTime": "20:00",
+      "minutes": 120,
+      "promoter": {
+        "name": "Bowlers Rest",
+        "url": "https://bowlersrest.com/"
+      }
+    },
+    {
       "name": "The Beatles Marathon UK",
       "eyebrow": "One day only · not part of the Free Fringe",
       "blurb": "A full day of Fab Four hits, played by local bands. We are bringing the ukuleles.",
