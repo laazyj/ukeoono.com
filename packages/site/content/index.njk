@@ -2,97 +2,59 @@
 layout: layouts/base.njk
 title: ""
 ---
-{% set f = site.festival %}
 {% set s = site.social %}
 
-<main class="flyer">
+<main class="home">
 
-  <div class="rail" aria-hidden="true"><span>Ballads &amp; Bangers</span></div>
-
-  <div class="flyer-grid">
-
-    <section class="hero">
-      <img class="pbh" src="{{ '/pbh-free-fringe-2026.png' | rel }}" alt="{{ f.name }}" width="100" height="100" />
+  <section class="hero hero--band">
+    <div>
       <h1 class="hero-title">{{ site.title }}!</h1>
       <p class="hero-show">{{ site.show.title }}</p>
-      <p class="hero-blurb">{{ site.show.blurb }}</p>
-      <p class="hero-when">Edinburgh Fringe Festival, {{ site.monthLabel }}</p>
-      <div class="swoop" aria-hidden="true"></div>
-    </section>
+    </div>
+    <p class="hero-blurb">{{ site.show.blurb }}</p>
+  </section>
 
-    <aside class="photos" aria-hidden="true">
-      <img src="{{ '/band-photos.jpg' | rel }}" alt="" loading="lazy" width="620" height="1527" />
-    </aside>
-
-    <section class="dates" id="dates" aria-labelledby="dates-head">
-      <h2 class="section-head" id="dates-head">{{ site.monthLabel }} dates</h2>
-
-      <div class="ticket">
-        {% for v in site.lineup %}
-        <article class="venue">
-          <h3 class="venue-name">
-            {% if v.mapUrl %}<a href="{{ v.mapUrl }}" rel="external">{{ v.venue }}</a>{% else %}{{ v.venue }}{% endif %}
-          </h3>
-          {% if v.address %}<p class="venue-address">{{ v.address }}</p>{% endif %}
-          {% if v.festival %}<p class="venue-note">Part of the <a href="{{ v.festival.url }}" rel="external">{{ v.festival.name }}</a>, not the Free Fringe{% if v.ticketsUrl %}, so <a href="{{ v.ticketsUrl }}" rel="external">grab a ticket</a> from them first{% endif %}.</p>{% endif %}
-          <ul class="session-list">
-            {% for sess in v.sessions %}
-            <li class="session">
-              <span class="session-day">{{ sess.day }}</span>
-              <span class="session-dates">{{ sess.dates | join(", ") }}</span>
-              <span class="session-time">{{ sess.time }}</span>
-            </li>
-            {% endfor %}
-          </ul>
-          {% if v.blurb %}<p class="venue-blurb">{{ v.blurb }}</p>{% endif %}
-        </article>
-        {% endfor %}
-      </div>
-    </section>
-
-    {% if site.specials.length %}
-    <section class="special" id="beyond" aria-labelledby="beyond-head">
-      <h2 class="section-head" id="beyond-head">Beyond the Fringe</h2>
-      <div class="ticket ticket--special">
-        {% for sp in site.specials %}
-        <article class="venue">
-          {% if sp.eyebrow %}<p class="special-eyebrow">{{ sp.eyebrow }}</p>{% endif %}
-          <h3 class="venue-name">
-            <a href="{{ sp.promoter.url }}" rel="external">{{ sp.name }}</a>
-          </h3>
-          <p class="venue-address">{% if sp.mapUrl %}<a href="{{ sp.mapUrl }}" rel="external">{{ sp.venue }}</a>{% else %}{{ sp.venue }}{% endif %}{% if sp.address %} · {{ sp.address }}{% endif %}</p>
-          <ul class="session-list">
-            <li class="session">
-              <span class="session-day">{{ sp.day }}</span>
-              <span class="session-dates">{{ sp.dateLabel }}</span>
-              {% if sp.timeLabel %}<span class="session-time">{{ sp.timeLabel }}</span>{% endif %}
-            </li>
-          </ul>
-          <p class="special-blurb">{{ sp.blurb }}</p>
-          <p class="special-row">
-            {% if sp.ticketsUrl %}<a class="btn btn--primary" href="{{ sp.ticketsUrl }}" rel="external">{{ sp.ticketsLabel }}</a>{% endif %}
-            <span class="special-promoter">{% if sp.ticketsUrl %}Tickets and info at{% else %}Hosted by{% endif %} <a href="{{ sp.promoter.url }}" rel="external">{{ sp.promoter.name }}</a>.</span>
-          </p>
-        </article>
-        {% endfor %}
-      </div>
-    </section>
-    {% endif %}
-
-    <section class="follow" id="follow" aria-labelledby="follow-head">
-      <h2 class="section-head" id="follow-head">Stay in the loop</h2>
-      <p>
-        Set times and surprise extras can move. {% if s.instagram %}Instagram has the
-        latest.{% else %}Instagram (coming soon) will have the latest.{% endif %}
-      </p>
-      <p class="follow-row">
-        {% if s.instagram %}<a class="btn btn--primary" href="{{ s.instagram }}" rel="external">Follow on Instagram</a>{% else %}<span class="btn btn--ghost is-disabled" aria-disabled="true">Instagram — coming soon</span>{% endif %}
-      </p>
-      <p class="contact-line">
-        Bookings or hellos? {% include "partials/email-link.njk" %}
-      </p>
-    </section>
-
+  <div class="band-strip" aria-hidden="true">
+    {#- Phones hide photos 4 to 6, so lazy-load those to skip the download. -#}
+    {% for n in range(1, 7) %}<img src="{{ ('/band/' + n + '.jpg') | rel }}" alt="" width="270" height="360"{% if n > 3 %} loading="lazy"{% endif %} />{% endfor %}
   </div>
+
+  <section id="gigs" aria-labelledby="gigs-head">
+    <h2 class="section-head" id="gigs-head">Coming up</h2>
+    {% if upcomingGigs.length %}
+    <div class="gig-cards">
+      {% for g in upcomingGigs %}
+      <article class="gig-card">
+        <p class="gig-card__date"><span>{{ g.dayLabel }}</span> {{ g.dateLabel }}</p>
+        <div class="gig-card__body">
+          <h3 class="venue-name"><a href="{{ g.url }}" rel="external">{{ g.name }}</a></h3>
+          <p class="venue-address">{% if g.mapUrl %}<a href="{{ g.mapUrl }}" rel="external">{{ g.venue }}</a>{% else %}{{ g.venue }}{% endif %}, {{ g.address }}</p>
+          <p class="gig-card__time">{{ g.timeLabel }}</p>
+          <p class="gig-card__blurb">{{ g.blurb }}</p>
+          <p class="gig-card__cta">
+            {% if g.ticketsUrl %}<a class="btn btn--primary btn--red" href="{{ g.ticketsUrl }}" rel="external">{{ g.ticketsLabel or "Get tickets" }}</a>{% else %}<span class="stamp">Free in, just turn up</span>{% endif %}
+          </p>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="no-gigs">Nothing booked right now. New dates land on Instagram first.</p>
+    {% endif %}
+  </section>
+
+  <section class="follow" id="follow" aria-labelledby="follow-head">
+    <h2 class="section-head" id="follow-head">Stay in the loop</h2>
+    <p>
+      New gigs land on Instagram first{% if not s.instagram %} (coming soon){% endif %}, along
+      with anything that moves.
+    </p>
+    <p class="follow-row">
+      {% if s.instagram %}<a class="btn btn--primary" href="{{ s.instagram }}" rel="external">Follow on Instagram</a>{% else %}<span class="btn btn--ghost is-disabled" aria-disabled="true">Instagram — coming soon</span>{% endif %}
+    </p>
+    <p class="contact-line">
+      Bookings or hellos? {% include "partials/email-link.njk" %}
+    </p>
+  </section>
 
 </main>

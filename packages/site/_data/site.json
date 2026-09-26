@@ -1,7 +1,7 @@
 {
   "title": "Uke O Ono",
   "tagline": "Ballads & Bangers",
-  "description": "Uke O Ono bring Ballads & Bangers to PBH's Free Fringe 2026: an Edinburgh ukulele band playing every kind of singalong, free, all through August.",
+  "description": "Uke O Ono are an Edinburgh ukulele band playing Ballads & Bangers: tender singalongs and daft anthems. Here's where to catch us next.",
   "url": "https://uke-o-ono.com",
   "author": {
     "id": "https://uke-o-ono.com/#org",
@@ -11,100 +11,34 @@
   "language": "en-GB",
   "city": "Edinburgh",
   "defaultOgImage": "/og-image.jpg",
-  "festival": {
-    "name": "PBH's Free Fringe 2026",
-    "url": "https://www.freefringe.org.uk/"
-  },
   "show": {
     "title": "Ballads & Bangers",
-    "blurb": "Tender ballads, daft bangers, and a roomful of ukuleles. Free in, no ticket, just turn up."
+    "blurb": "Edinburgh's loudest ukulele band. Tender ballads, daft bangers, and a roomful of singing strangers."
   },
-  "month": "2026-08",
-  "monthLabel": "August 2026",
-  "lineup": [
-    {
-      "venue": "Bowlers Rest",
-      "address": "24 Mitchell St, Leith, Edinburgh EH6 7BD",
-      "mapUrl": "https://bowlersrest.com/",
-      "sessions": [
-        { "day": "Saturdays", "dates": [8, 22, 29], "time": "16:45" },
-        { "day": "Thursdays", "dates": [13, 20, 27], "time": "19:15" }
-      ]
-    },
-    {
-      "venue": "Fingers Piano Bar",
-      "address": "61A Frederick St, Edinburgh EH2 1LH",
-      "mapUrl": "https://maps.app.goo.gl/BCSxbDRgiruqSk7X9",
-      "sessions": [{ "day": "Mondays", "dates": [10, 17, 24], "time": "21:00" }]
-    },
-    {
-      "venue": "The Scottish Parliament",
-      "address": "Holyrood, Edinburgh EH99 1SP",
-      "mapUrl": "https://www.parliament.scot/visit-and-learn/visit-us",
-      "festival": {
-        "name": "Festival of Politics",
-        "url": "https://www.festivalofpolitics.scot/"
-      },
-      "ticketsUrl": "https://www.festivalofpolitics.scot/",
-      "blurb": "Ukuleles at Holyrood. Same ballads, same bangers, considerably grander surroundings.",
-      "sessions": [{ "day": "Thursday", "dates": [27], "time": "17:45" }]
-    }
-  ],
-  "specials": [
-    {
-      "name": "Leith St Andrew's Open Day",
-      "eyebrow": "One afternoon only · free in, just turn up",
-      "blurb": "The Trust are throwing the doors of the old Easter Road church wide open: stalls, circus, and live music all day. We are on mid afternoon, ukuleles at the ready.",
-      "venue": "Leith St Andrew's Parish Church",
-      "address": "410-412 Easter Road, Edinburgh EH6 8HT",
-      "mapUrl": "https://maps.google.com/?q=410-412+Easter+Road,+Edinburgh+EH6+8HT",
-      "day": "Saturday",
-      "date": "2026-09-05",
-      "dateLabel": "5 September 2026",
-      "timeLabel": "14:30",
-      "startTime": "14:30",
-      "promoter": {
-        "name": "Leith St Andrews Trust",
-        "url": "https://leithstandrewstrust.org/"
-      }
-    },
+  "gigs": [
     {
       "name": "The Bowlers Rest Singalong",
-      "eyebrow": "One night only · free in, just turn up",
+      "url": "https://bowlersrest.com/",
       "blurb": "The Fringe is done, the singing is not. A proper singalong session back at our Leith local: bring a voice, bring a ukulele, bring both.",
       "venue": "Bowlers Rest",
       "address": "24 Mitchell St, Leith, Edinburgh EH6 7BD",
       "mapUrl": "https://bowlersrest.com/",
-      "day": "Wednesday",
       "date": "2026-09-30",
-      "dateLabel": "30 September 2026",
-      "timeLabel": "20:00–23:00",
       "startTime": "20:00",
-      "endTime": "23:00",
-      "promoter": {
-        "name": "Bowlers Rest",
-        "url": "https://bowlersrest.com/"
-      }
+      "endTime": "23:00"
     },
     {
       "name": "The Beatles Marathon UK",
-      "eyebrow": "One day only · not part of the Free Fringe",
+      "url": "https://www.beatlesmarathon.com/",
       "blurb": "A full day of Fab Four hits, played by local bands. We are bringing the ukuleles.",
       "venue": "Portobello Town Hall",
       "address": "147 Portobello High St, Edinburgh EH15 1AF",
       "mapUrl": "https://maps.app.goo.gl/cJTAhUH4ydYxbqaZ7",
-      "day": "Saturday",
       "date": "2026-11-14",
-      "dateLabel": "14 November 2026",
-      "timeLabel": "12:00–22:00",
       "startTime": "12:00",
       "endTime": "22:00",
       "ticketsUrl": "https://www.beatlesmarathon.com/",
-      "ticketsLabel": "Tickets on sale now",
-      "promoter": {
-        "name": "Beatles Marathon",
-        "url": "https://www.beatlesmarathon.com/"
-      }
+      "ticketsLabel": "Tickets on sale now"
     }
   ],
   "social": {
