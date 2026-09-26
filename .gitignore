@@ -35,3 +35,6 @@ cdk.out/
 
 # macOS
 .DS_Store
+
+# Working area for source photos before they're picked and exported.
+staging/
