@@ -1,0 +1,24 @@
+---
+layout: layouts/base.njk
+title: The back catalogue
+summary: Set lists, and soon photos and videos, from Uke O Ono's past gigs.
+permalink: /back-catalogue/
+wide: true
+---
+<main class="home">
+
+  <section class="hero hero--compact">
+    <h1 class="hero-title">The back catalogue</h1>
+    <p class="hero-blurb">
+      What we played and where, for the gigs you missed. Or the ones you were at and can't
+      quite remember.
+    </p>
+  </section>
+
+  <div class="gig-cards">
+    {% for entry in collections.backCatalogue %}
+    {% include "partials/back-catalogue-card.njk" %}
+    {% endfor %}
+  </div>
+
+</main>

@@ -40,6 +40,22 @@ gig's own page, which its name links to), `blurb`, `venue`, `address`,
 `festival` (`name`, `url`) when it's part of one. Gigs are sorted by date and
 stay on the home page until you remove them; nothing expires automatically.
 
+## Adding to the back catalogue
+
+Past gigs worth remembering (a festival run or a big one-off) each get a
+Markdown file in `packages/site/content/back-catalogue/`, published at
+`/back-catalogue/<file-name>/` and listed newest first by `date`. Nothing is
+added automatically; see `fringe-2026.md` for the full shape:
+
+- `title`, `date` (the last show), `when` (the ticket's date bar),
+  optional `shows` (shown when more than one), `dates`, `venues`, `summary`
+  (card blurb and meta description), optional `logo` (`src`, `alt`)
+- `setlist`: the running order, each `{ song, artist }`
+- `extras`: songs played off the list, same shape
+- the body: the intro paragraph under the title
+
+Each section only renders when the entry has content for it.
+
 ## Configuration
 
 - **Domain** is centralised in `packages/cdk/src/app.ts` (`CONFIG.domain`).
