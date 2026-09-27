@@ -4,7 +4,7 @@
 [![Code: MIT](https://img.shields.io/badge/code-MIT-blue.svg)](LICENSE)
 [![Content: © Uke O Ono](https://img.shields.io/badge/content-%C2%A9%20Uke%20O%20Ono-lightgrey.svg)](LICENSE-content.md)
 
-[![uke-o-ono.com](packages/site/static/og-image.jpg)](https://uke-o-ono.com)
+[![uke-o-ono.com](packages/site/static/share-card.jpg)](https://uke-o-ono.com)
 
 Monorepo for **uke-o-ono.com** — the online gig poster for Uke O Ono, an
 Edinburgh ukulele band playing "Ballads & Bangers".

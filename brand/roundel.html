@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&display=swap" />
+    <style>
+      /* Uke O Ono roundel: the site's poster lettering, stacked, for circular
+         avatars (YouTube and friends crop the square to a circle). */
+      * {
+        margin: 0;
+        box-sizing: border-box;
+      }
+      :root {
+        --red: #e02d23;
+        --cream: #f4ecd0;
+        --ink: #16110d;
+      }
+      html,
+      body {
+        width: 800px;
+        height: 800px;
+      }
+      body {
+        position: relative;
+        background: var(--red);
+        overflow: hidden;
+      }
+      .vig {
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(90% 80% at 50% 0%, rgba(255, 240, 200, 0.16), transparent 60%),
+          radial-gradient(100% 100% at 50% 110%, rgba(80, 10, 8, 0.4), transparent 55%);
+      }
+      .grain {
+        position: absolute;
+        inset: 0;
+        z-index: 3;
+        pointer-events: none;
+        opacity: 0.5;
+        mix-blend-mode: multiply;
+        background: url("../packages/site/static/grunge.png") repeat;
+        background-size: 360px;
+      }
+      .mark {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        display: grid;
+        place-content: center;
+        text-align: center;
+      }
+      h1 {
+        font-family: "Anton", sans-serif;
+        font-weight: 400;
+        text-transform: uppercase;
+        font-size: 248px;
+        line-height: 0.9;
+        letter-spacing: 0.01em;
+        color: var(--cream);
+        text-shadow: 0.045em 0.045em 0 var(--ink);
+        -webkit-mask-image: url("../packages/site/static/erode.png");
+        mask-image: url("../packages/site/static/erode.png");
+        -webkit-mask-size: 300px;
+        mask-size: 300px;
+        /* Keep the caps (and shadow) inside the mask's border-box. */
+        padding: 0.1em 0.08em 0.1em 0;
+        /* Optical centring: the shadow hangs down-right. */
+        transform: translate(-0.015em, -0.02em);
+      }
+      h1 span {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="vig"></div>
+    <div class="mark">
+      <h1><span>Uke O</span><span>Ono!</span></h1>
+    </div>
+    <div class="grain"></div>
+  </body>
+</html>

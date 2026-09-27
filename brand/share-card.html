@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@700&display=swap"
+    />
+    <style>
+      /* Uke O Ono share card (og:image / twitter:image), 1200 x 630. The same
+         recipe as the site: Anton on the red, cream lettering with an ink
+         shadow, the eroded-stencil mask and grain. Platforms that crop to a
+         square keep the middle, so the wordmark sits left of centre and the
+         photo can lose its edge. */
+      * {
+        margin: 0;
+        box-sizing: border-box;
+      }
+      :root {
+        --red: #e02d23;
+        --cream: #f4ecd0;
+        --ink: #16110d;
+      }
+      html,
+      body {
+        width: 1200px;
+        height: 630px;
+      }
+      body {
+        position: relative;
+        background: var(--red);
+        overflow: hidden;
+      }
+      .vig {
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(120% 90% at 50% -10%, rgba(255, 240, 200, 0.16), transparent 60%),
+          radial-gradient(140% 120% at 50% 120%, rgba(80, 10, 8, 0.4), transparent 55%);
+      }
+      .grain {
+        position: absolute;
+        inset: 0;
+        z-index: 5;
+        pointer-events: none;
+        opacity: 0.5;
+        mix-blend-mode: multiply;
+        background: url("../packages/site/static/grunge.png") repeat;
+        background-size: 360px;
+      }
+      .words {
+        position: absolute;
+        z-index: 2;
+        left: 76px;
+        top: 0;
+        bottom: 0;
+        width: 700px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      h1 {
+        font-family: "Anton", sans-serif;
+        font-weight: 400;
+        text-transform: uppercase;
+        font-size: 168px;
+        line-height: 0.9;
+        letter-spacing: 0.01em;
+        color: var(--cream);
+        text-shadow: 0.045em 0.045em 0 var(--ink);
+        -webkit-mask-image: url("../packages/site/static/erode.png");
+        mask-image: url("../packages/site/static/erode.png");
+        -webkit-mask-size: 300px;
+        mask-size: 300px;
+        padding: 0.1em 0.06em 0.06em 0;
+      }
+      h1 span {
+        display: block;
+      }
+      .show {
+        font-family: "Anton", sans-serif;
+        text-transform: uppercase;
+        font-size: 58px;
+        letter-spacing: 0.01em;
+        color: var(--ink);
+        margin-top: 6px;
+      }
+      .blurb {
+        font-family: "Anton", sans-serif;
+        text-transform: uppercase;
+        font-size: 30px;
+        letter-spacing: 0.04em;
+        color: var(--cream);
+        margin-top: 18px;
+      }
+      .url {
+        align-self: flex-start;
+        margin-top: 22px;
+        font-family: "Archivo", sans-serif;
+        font-weight: 700;
+        font-size: 24px;
+        color: var(--ink);
+        background: var(--cream);
+        padding: 6px 14px;
+        transform: rotate(-1.2deg);
+      }
+      .print {
+        position: absolute;
+        z-index: 3;
+        right: 58px;
+        top: 118px;
+        width: 400px;
+        padding: 12px;
+        background: var(--cream);
+        box-shadow: 10px 10px 0 rgba(22, 17, 13, 0.45);
+        transform: rotate(3.5deg);
+      }
+      .print img {
+        display: block;
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="vig"></div>
+    <div class="words">
+      <h1><span>Uke O</span><span>Ono!</span></h1>
+      <p class="show">Ballads &amp; Bangers</p>
+      <p class="blurb">Edinburgh's loudest ukulele band</p>
+      <p class="url">uke-o-ono.com</p>
+    </div>
+    <figure class="print">
+      <img src="../packages/site/static/back-catalogue/fringe-2026/photos/19.jpg" alt="" />
+    </figure>
+    <div class="grain"></div>
+  </body>
+</html>

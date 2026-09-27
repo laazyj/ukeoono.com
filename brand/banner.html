@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&display=swap" />
+    <style>
+      /* Uke O Ono YouTube banner, 2560 x 1440. TVs show all of it, desktop a
+         2560 x 423 strip through the middle, phones only the central
+         1546 x 423 safe area: the wordmark lives there, the photo prints sit in
+         the desktop-only side zones. */
+      * {
+        margin: 0;
+        box-sizing: border-box;
+      }
+      :root {
+        --red: #e02d23;
+        --cream: #f4ecd0;
+        --ink: #16110d;
+      }
+      html,
+      body {
+        width: 2560px;
+        height: 1440px;
+      }
+      body {
+        position: relative;
+        background: var(--red);
+        overflow: hidden;
+      }
+      .vig {
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(70% 60% at 50% 20%, rgba(255, 240, 200, 0.14), transparent 60%),
+          radial-gradient(90% 80% at 50% 110%, rgba(80, 10, 8, 0.4), transparent 55%);
+      }
+      .grain {
+        position: absolute;
+        inset: 0;
+        z-index: 5;
+        pointer-events: none;
+        opacity: 0.5;
+        mix-blend-mode: multiply;
+        background: url("../packages/site/static/grunge.png") repeat;
+        background-size: 360px;
+      }
+      .safe {
+        position: absolute;
+        z-index: 2;
+        left: 507px;
+        top: 508px;
+        width: 1546px;
+        height: 423px;
+        display: grid;
+        place-content: center;
+        text-align: center;
+      }
+      h1 {
+        font-family: "Anton", sans-serif;
+        font-weight: 400;
+        text-transform: uppercase;
+        font-size: 262px;
+        line-height: 0.9;
+        letter-spacing: 0.01em;
+        color: var(--cream);
+        text-shadow: 0.045em 0.045em 0 var(--ink);
+        -webkit-mask-image: url("../packages/site/static/erode.png");
+        mask-image: url("../packages/site/static/erode.png");
+        -webkit-mask-size: 340px;
+        mask-size: 340px;
+        padding: 0.08em 0.06em 0.06em 0;
+      }
+      .tag {
+        font-family: "Anton", sans-serif;
+        text-transform: uppercase;
+        font-size: 66px;
+        letter-spacing: 0.03em;
+        color: var(--ink);
+        margin-top: 6px;
+      }
+      /* Pinned-up prints in the desktop-only side zones. */
+      .print {
+        position: absolute;
+        z-index: 3;
+        top: 540px;
+        width: 420px;
+        padding: 12px;
+        background: var(--cream);
+        box-shadow: 10px 10px 0 rgba(22, 17, 13, 0.45);
+      }
+      .print img {
+        display: block;
+        width: 100%;
+        aspect-ratio: 3 / 2;
+        object-fit: cover;
+      }
+      .print--left {
+        left: 52px;
+        transform: rotate(-4deg);
+      }
+      .print--right {
+        right: 52px;
+        transform: rotate(3.5deg);
+        top: 556px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="vig"></div>
+    <figure class="print print--left">
+      <img src="../packages/site/static/back-catalogue/fringe-2026/photos/19.jpg" alt="" />
+    </figure>
+    <div class="safe">
+      <h1>Uke O Ono!</h1>
+      <p class="tag">Ballads &amp; Bangers from Edinburgh</p>
+    </div>
+    <figure class="print print--right">
+      <img src="../packages/site/static/back-catalogue/fringe-2026/photos/16.jpg" alt="" />
+    </figure>
+    <div class="grain"></div>
+  </body>
+</html>
