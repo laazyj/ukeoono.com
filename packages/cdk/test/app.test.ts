@@ -63,6 +63,20 @@ describe("app synthesis", () => {
         },
       );
     });
+
+    it("sets Cache-Control on every response with a viewer-response function", () => {
+      const template = stackTemplate(app, "UkeOOnoSiteStack");
+      template.hasResourceProperties("AWS::CloudFront::Distribution", {
+        DistributionConfig: Match.objectLike({
+          DefaultCacheBehavior: Match.objectLike({
+            FunctionAssociations: Match.arrayWith([
+              Match.objectLike({ EventType: "viewer-request" }),
+              Match.objectLike({ EventType: "viewer-response" }),
+            ]),
+          }),
+        }),
+      });
+    });
   });
 
   describe("budget", () => {

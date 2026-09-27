@@ -1,5 +1,9 @@
 import { Buffer } from "node:buffer";
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
 import process from "node:process";
+import { URL } from "node:url";
 
 export default function (eleventyConfig) {
   eleventyConfig.amendLibrary("md", (md) => {
@@ -33,6 +37,38 @@ export default function (eleventyConfig) {
     const depth = pageUrl.split("/").filter(Boolean).length;
     const prefix = depth === 0 ? "./" : "../".repeat(depth);
     return prefix + target.replace(/^\//, "");
+  });
+
+  // Version every local file a page links to by a hash of its contents
+  // (`src="./band/1.jpg"` -> `src="./band/1.jpg?v=36de6bf14a"`). The URL only
+  // changes when the file does, so browsers can keep it for a year (the CDN
+  // marks ?v= responses immutable) yet never pair a new page with an old copy.
+  // Runs on every HTML page, so templates don't need to opt in. /assets/*
+  // comes from assets/, everything else from static/ (the passthrough copies
+  // above). Pages (.html, pretty URLs) and external links are left alone.
+  const hashes = new Map();
+  eleventyConfig.on("eleventy.before", () => hashes.clear());
+  const versionOf = (sitePath) => {
+    if (!hashes.has(sitePath)) {
+      const dir = sitePath.startsWith("/assets/") ? "" : "static";
+      const source = path.join(import.meta.dirname, dir, sitePath);
+      hashes.set(
+        sitePath,
+        existsSync(source)
+          ? createHash("sha256").update(readFileSync(source)).digest("hex").slice(0, 10)
+          : null,
+      );
+    }
+    return hashes.get(sitePath);
+  };
+  eleventyConfig.addTransform("version-assets", function (content) {
+    if (!this.page.outputPath?.endsWith(".html")) return content;
+    const pageUrl = new URL(this.page.url, "https://site.invalid");
+    return content.replace(/\b(src|href)="([^"?#:]+\.[a-z0-9]+)"/gi, (match, attr, ref) => {
+      if (ref.endsWith(".html")) return match;
+      const hash = versionOf(decodeURIComponent(new URL(ref, pageUrl).pathname));
+      return hash ? `${attr}="${ref}?v=${hash}"` : match;
+    });
   });
 
   // Base64-encode a string. Used to keep the contact email out of the page
