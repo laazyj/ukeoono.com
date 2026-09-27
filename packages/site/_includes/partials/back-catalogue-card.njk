@@ -8,10 +8,11 @@
     <span class="stamp played" aria-hidden="true">Played</span>
     <span class="venue-name">{{ d.title }}</span>
     <span class="gig-card__blurb">{{ d.summary }}</span>
-    {#- What's inside, e.g. "12 songs on the set list, 24 photos". -#}
+    {#- What's inside, e.g. "12 songs on the set list, 32 photos, 2 videos". -#}
     {% set inside = [
       d.setlist and (d.setlist.length + " songs on the set list"),
-      d.photos and (d.photos.length + " photos")
+      d.photos and (d.photos.length + " photos"),
+      d.videoCount and (d.videoCount + (" video" if d.videoCount == 1 else " videos"))
     ] | compact %}
     {% if inside.length %}<span class="gig-card__has">{{ inside | join(", ") }}</span>{% endif %}
   </span>

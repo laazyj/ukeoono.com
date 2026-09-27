@@ -4,14 +4,24 @@ layout: layouts/base.njk
 {#- One back-catalogue entry: a festival run or a one-off gig, from a
     content/back-catalogue/*.md file. Each section renders only when the
     entry has content for it. -#}
-{#- A song on the sheet. `n` is its place in the running order, if it has one. -#}
-{% macro songRow(s, n) %}
-<li class="song">
+{#- A song on the sheet. `n` is its place in the running order, if it has
+    one. A song with a `video` links to it on YouTube (within the entry's
+    playlist, the link stretched over the whole row) with its self-hosted
+    thumbnail. `thumbs` is the thumbnail folder, already made page-relative
+    (the rel filter can't see the page in here). -#}
+{% macro songRow(s, n, thumbs, playlist) %}
+<li class="song{% if s.video %} song--video{% endif %}">
   {% if n %}<span class="song-n">{{ n }}</span>{% endif %}
-  <span class="song-name">{{ s.song }}</span>
+  <span class="song-name">
+    {%- if s.video -%}
+    <a class="song__link" href="https://www.youtube.com/watch?v={{ s.video }}{% if playlist %}&amp;list={{ playlist }}{% endif %}" rel="external">{{ s.song }}<span class="visually-hidden"> (watch on YouTube)</span></a>
+    {%- else %}{{ s.song }}{% endif -%}
+  </span>
   <span class="song-artist">{{ s.artist }}</span>
+  {% if s.video %}<span class="song__thumb" aria-hidden="true"><img src="{{ thumbs + s.video + '.jpg' }}" alt="" width="320" height="180" loading="lazy" /></span>{% endif %}
 </li>
 {% endmacro %}
+{% set thumbs = videoBase | rel %}
 <main class="entry">
 
   <section class="hero hero--compact">
@@ -26,8 +36,14 @@ layout: layouts/base.njk
   <section class="sheet" aria-labelledby="setlist-head">
     <h2 class="sheet-head" id="setlist-head">The set list</h2>
     <ol class="songs">
-      {% for s in setlist %}{{ songRow(s, loop.index) }}{% endfor %}
+      {% for s in setlist %}{{ songRow(s, loop.index, thumbs, playlist) }}{% endfor %}
     </ol>
+    {% if playlist %}
+    <p class="sheet-foot">
+      Songs with a picture link to the video.
+      <a href="https://www.youtube.com/playlist?list={{ playlist }}" rel="external">Watch the whole {{ title }} playlist on YouTube</a>.
+    </p>
+    {% endif %}
   </section>
   {% endif %}
 
@@ -37,7 +53,7 @@ layout: layouts/base.njk
     <p>One-offs, requests and the odd dare.</p>
     <div class="sheet">
       <ul class="songs songs--extras">
-        {% for s in extras %}{{ songRow(s) }}{% endfor %}
+        {% for s in extras %}{{ songRow(s, null, thumbs, playlist) }}{% endfor %}
       </ul>
     </div>
   </section>

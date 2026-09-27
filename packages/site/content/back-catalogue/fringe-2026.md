@@ -7,6 +7,7 @@ shows: 10
 dates: 8 to 29 August 2026
 venues: Bowlers Rest, Fingers Piano Bar and the Scottish Parliament
 summary: Ballads & Bangers at PBH's Free Fringe. Ten shows, one of them at Holyrood.
+playlist: PLcoaok3Ee1s4
 logo:
   src: /back-catalogue/fringe-2026/pbh-free-fringe-2026.png
   alt: PBH's Free Fringe 2026
@@ -165,8 +166,8 @@ setlist:
   - { song: "Kiss Me", artist: "Sixpence None the Richer" }
   - { song: "Losing My Religion", artist: "R.E.M." }
   - { song: "Take Me Out", artist: "Franz Ferdinand" }
-  - { song: "I Will Wait", artist: "Mumford & Sons" }
-  - { song: "Hot Stuff", artist: "Donna Summer" }
+  - { song: "I Will Wait", artist: "Mumford & Sons", video: "VkAUwBi14nI" }
+  - { song: "Hot Stuff", artist: "Donna Summer", video: "_ymUOfXbnZc" }
   - { song: "Pink Pony Club", artist: "Chappell Roan" }
   - { song: "Dreams", artist: "The Cranberries" }
 extras:
