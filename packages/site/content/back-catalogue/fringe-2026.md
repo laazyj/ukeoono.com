@@ -168,7 +168,7 @@ setlist:
   - { song: "Take Me Out", artist: "Franz Ferdinand" }
   - { song: "I Will Wait", artist: "Mumford & Sons", video: "VkAUwBi14nI" }
   - { song: "Hot Stuff", artist: "Donna Summer", video: "_ymUOfXbnZc" }
-  - { song: "Pink Pony Club", artist: "Chappell Roan" }
+  - { song: "Pink Pony Club", artist: "Chappell Roan", video: "Vow0-bplmzw" }
   - { song: "Dreams", artist: "The Cranberries" }
 extras:
   - { song: "Take On Me", artist: "a-ha" }
