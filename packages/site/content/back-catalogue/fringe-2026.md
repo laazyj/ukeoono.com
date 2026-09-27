@@ -158,7 +158,7 @@ photos:
       alt: "Four players leaning into a chorus at Leith St Andrew's, fiddle on the right.",
     }
 setlist:
-  - { song: "Fisherman's Blues", artist: "The Waterboys" }
+  - { song: "Fisherman's Blues", artist: "The Waterboys", video: "ptfufQ1c3Ic" }
   - { song: "In Hell I'll Be in Good Company", artist: "The Dead South" }
   - { song: "Austin", artist: "Dasha" }
   - { song: "This Is the Life", artist: "Amy Macdonald" }
