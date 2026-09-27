@@ -18,6 +18,7 @@ export default defineConfig(
             "packages/site/eleventy.config.js",
             "packages/site/_data/*.js",
             "packages/cdk/scripts/*.mjs",
+            "packages/site/scripts/*.mjs",
           ],
         },
       },
@@ -28,7 +29,7 @@ export default defineConfig(
     extends: [tseslint.configs.disableTypeChecked],
   },
   {
-    files: ["packages/cdk/scripts/*.mjs"],
+    files: ["packages/cdk/scripts/*.mjs", "packages/site/scripts/*.mjs"],
     languageOptions: {
       globals: {
         process: "readonly",

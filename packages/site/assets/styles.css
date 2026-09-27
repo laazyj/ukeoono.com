@@ -267,7 +267,8 @@ footer.site {
 /* Photos cropped to a fixed shape; each use sets its own aspect ratio. */
 .band-strip img,
 .gig-card__photo,
-.film__frame img {
+.film__frame img,
+.song__thumb img {
   display: block;
   width: 100%;
   height: auto;
@@ -549,14 +550,75 @@ footer.site {
 }
 
 .song {
+  position: relative;
   display: grid;
-  grid-template-columns: 2.2rem 1fr;
+  grid-template-columns: 2.2rem 1fr auto;
   grid-template-areas:
-    "n name"
-    ". artist";
+    "n name thumb"
+    ". artist thumb";
+  align-items: center;
+  column-gap: 0.8rem;
   padding: 0.55rem 0;
   border-bottom: 1px solid rgb(22 17 13 / 15%);
   break-inside: avoid;
+}
+
+/* A song with a video: its name links to it, stretched over the whole row. */
+.song__link {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.song__link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  /* Above the thumbnail, which is positioned for its play mark. */
+  z-index: 1;
+}
+
+.song--video:hover .song-name {
+  color: var(--red-deep);
+}
+
+.song__thumb {
+  grid-area: thumb;
+  position: relative;
+  width: 6.4rem;
+  border: 2px solid var(--ink);
+  background: var(--ink);
+}
+
+.song__thumb img {
+  filter: grayscale(1) brightness(0.85);
+}
+
+.song--video:hover .song__thumb img {
+  filter: grayscale(0.2);
+}
+
+/* Play mark: a cream triangle over the thumbnail. */
+.song__thumb::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -35% -50%;
+  border-style: solid;
+  border-width: 0.55rem 0 0.55rem 0.9rem;
+  border-color: transparent transparent transparent var(--cream);
+}
+
+.sheet-foot {
+  margin: 1rem 0 0.2rem;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+
+.sheet-foot a {
+  color: var(--red-deep);
+  font-weight: 800;
 }
 
 .song-n {
@@ -583,8 +645,8 @@ footer.site {
 /* Off-list songs have no running order, so no number column. */
 .songs--extras .song {
   grid-template:
-    "name"
-    "artist" / 1fr;
+    "name thumb"
+    "artist thumb" / 1fr auto;
 }
 
 /* Photos: a strip of black film with sprocket holes top and bottom and
@@ -881,4 +943,14 @@ footer.site {
 .consent-btn--primary {
   background: var(--cream);
   color: var(--ink);
+}
+
+/* Text for screen readers only. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }

@@ -7,7 +7,8 @@
   "scripts": {
     "clean": "rm -rf dist",
     "build": "eleventy",
-    "start": "eleventy --serve --quiet"
+    "start": "eleventy --serve --quiet",
+    "thumbs": "node scripts/fetch-video-thumbs.mjs"
   },
   "nx": {
     "targets": {
@@ -29,6 +30,7 @@
     }
   },
   "devDependencies": {
-    "@11ty/eleventy": "^3.1.6"
+    "@11ty/eleventy": "^3.1.6",
+    "gray-matter": "^4.0.3"
   }
 }

@@ -52,6 +52,11 @@ added automatically; see `fringe-2026.md` for the full shape:
   (card blurb and meta description), optional `logo` (`src`, `alt`)
 - `setlist`: the running order, each `{ song, artist }`
 - `extras`: songs played off the list, same shape
+- `video` on any `setlist` or `extras` song: its YouTube video ID. The song
+  links to it (within `playlist`) with a thumbnail. After adding one, run
+  `npm run thumbs -w @uke-o-ono/site` and commit the fetched image; the site
+  serves thumbnails itself, so visitors never load anything from YouTube.
+- `playlist`: the entry's YouTube playlist ID, linked under the set list
 - `photos`: each `{ n, where, alt }`, in gallery order, shown as a film strip
   with a lightbox. `n` names `static/back-catalogue/<slug>/photos/<n>.jpg`
   (at most 1600px and 300KB) and `<n>-thumb.jpg` (a 400px square crop);
