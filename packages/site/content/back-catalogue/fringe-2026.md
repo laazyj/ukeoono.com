@@ -158,21 +158,22 @@ photos:
       alt: "Four players leaning into a chorus at Leith St Andrew's, fiddle on the right.",
     }
 setlist:
-  - { song: "Fisherman's Blues", artist: "The Waterboys" }
+  - { song: "Fisherman's Blues", artist: "The Waterboys", video: "ptfufQ1c3Ic" }
   - { song: "In Hell I'll Be in Good Company", artist: "The Dead South" }
-  - { song: "Austin", artist: "Dasha" }
-  - { song: "This Is the Life", artist: "Amy Macdonald" }
-  - { song: "I've Got a Feeling", artist: "The Beatles" }
-  - { song: "Kiss Me", artist: "Sixpence None the Richer" }
-  - { song: "Losing My Religion", artist: "R.E.M." }
-  - { song: "Take Me Out", artist: "Franz Ferdinand" }
+  - { song: "Austin", artist: "Dasha", video: "MdxD1I9DKp8" }
+  - { song: "This Is the Life", artist: "Amy Macdonald", video: "RBhRtEYLcDg" }
+  - { song: "I've Got a Feeling", artist: "The Beatles", video: "0WcaIuu-gDg" }
+  - { song: "Kiss Me", artist: "Sixpence None the Richer", video: "OvchoH2-P9I" }
+  - { song: "Losing My Religion", artist: "R.E.M.", video: "jAexpe4CUKI" }
+  - { song: "Take Me Out", artist: "Franz Ferdinand", video: "kH69m9UNoN4" }
   - { song: "I Will Wait", artist: "Mumford & Sons", video: "VkAUwBi14nI" }
   - { song: "Hot Stuff", artist: "Donna Summer", video: "_ymUOfXbnZc" }
-  - { song: "Pink Pony Club", artist: "Chappell Roan" }
-  - { song: "Dreams", artist: "The Cranberries" }
+  - { song: "Pink Pony Club", artist: "Chappell Roan", video: "Vow0-bplmzw" }
+  - { song: "Dreams", artist: "The Cranberries", video: "9snf58klM70" }
 extras:
-  - { song: "Take On Me", artist: "a-ha" }
+  - { song: "Take On Me", artist: "a-ha", video: "bFH7kewFXhQ" }
   - { song: "9 to 5", artist: "Dolly Parton" }
+  - { song: "Time After Time", artist: "Cyndi Lauper", video: "mB7n95QVBW4" }
 ---
 
 Ten shows in August: Bowlers Rest in Leith, Fingers Piano Bar in the New Town,
