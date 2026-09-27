@@ -163,7 +163,7 @@ setlist:
   - { song: "Austin", artist: "Dasha" }
   - { song: "This Is the Life", artist: "Amy Macdonald" }
   - { song: "I've Got a Feeling", artist: "The Beatles" }
-  - { song: "Kiss Me", artist: "Sixpence None the Richer" }
+  - { song: "Kiss Me", artist: "Sixpence None the Richer", video: "OvchoH2-P9I" }
   - { song: "Losing My Religion", artist: "R.E.M." }
   - { song: "Take Me Out", artist: "Franz Ferdinand" }
   - { song: "I Will Wait", artist: "Mumford & Sons", video: "VkAUwBi14nI" }
