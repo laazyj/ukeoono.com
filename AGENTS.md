@@ -34,6 +34,14 @@ the local scan for secret-free changes is safe.
 Use npx nx to run build/test scripts — this is an nx monorepo with two
 packages: `@uke-o-ono/site` (Eleventy) and `@uke-o-ono/cdk` (composureCDK).
 
+## Asset URLs
+
+The build appends a content hash (`?v=…`) to every local file a page links to
+(`version-assets` transform in `eleventy.config.js`), and the CDN caches those
+URLs for a year. Link static files with plain `src`/`href` attributes so the
+transform can see them; files referenced from CSS `url()` aren't versioned and
+are cached for a day.
+
 ## What this site is
 
 uke-o-ono.com is the online gig poster for Uke O Ono, an Edinburgh ukulele

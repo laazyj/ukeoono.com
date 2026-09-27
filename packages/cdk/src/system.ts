@@ -34,6 +34,7 @@ import {
 import { createTopicBuilder, type TopicBuilderResult } from "@composurecdk/sns";
 import { constraints, outputs } from "@composurecdk/cloudformation";
 
+import { buildCacheControlFunctionCode } from "./cache-control-function.js";
 import { buildRedirectFunctionCode } from "./redirect-function.js";
 
 // 90 days: ample audit runway for a flyer site, well under the 731-day default.
@@ -59,6 +60,8 @@ export interface SystemStacks {
  */
 const REDIRECT_FUNCTION_COMMENT = "www to apex 301 + pretty-URL rewrite";
 constraints.validate.templateText(REDIRECT_FUNCTION_COMMENT, "redirect function comment");
+const CACHE_CONTROL_FUNCTION_COMMENT = "Cache-Control by file type";
+constraints.validate.templateText(CACHE_CONTROL_FUNCTION_COMMENT, "cache-control function comment");
 
 const topicArnOutput = (refName: "usEast1Alerts" | "siteAlerts", role: string) => ({
   value: ref<TopicBuilderResult>(refName)
@@ -160,6 +163,13 @@ export function createSystem(stacks: SystemStacks, options: SystemOptions) {
               runtime: FunctionRuntime.JS_2_0,
               code: FunctionCode.fromInline(buildRedirectFunctionCode(domain)),
               comment: REDIRECT_FUNCTION_COMMENT,
+            },
+            {
+              eventType: FunctionEventType.VIEWER_RESPONSE,
+              functionName: `${siteStack.stackName}-cache-control`,
+              runtime: FunctionRuntime.JS_2_0,
+              code: FunctionCode.fromInline(buildCacheControlFunctionCode()),
+              comment: CACHE_CONTROL_FUNCTION_COMMENT,
             },
           ],
         })

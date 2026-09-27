@@ -561,6 +561,15 @@
                   ],
                 },
               },
+              {
+                "EventType": "viewer-response",
+                "FunctionARN": {
+                  "Fn::GetAtt": [
+                    "ukeoonocomcdnDefaultBehaviorViewerResponseFn41F5B764",
+                    "FunctionARN",
+                  ],
+                },
+              },
             ],
             "ResponseHeadersPolicyId": "67f7725c-6f97-4210-82d7-5512b31e9d03",
             "TargetOriginId": "UkeOOnoSiteStackukeoonocomcdnOrigin1894D2D48",
@@ -734,6 +743,43 @@ function handler(event) {
           "Runtime": "cloudfront-js-2.0",
         },
         "Name": "UkeOOnoSiteStack-redirect",
+      },
+      "Type": "AWS::CloudFront::Function",
+    },
+    "ukeoonocomcdnDefaultBehaviorViewerResponseFn41F5B764": {
+      "Properties": {
+        "AutoPublish": true,
+        "FunctionCode": "var CC = {"immutable":"public, max-age=31536000, immutable","revalidate":"public, max-age=0, must-revalidate","day":"public, max-age=86400"};
+var PAGE = /\.(html|xml|txt|webmanifest)$/;
+
+function handler(event) {
+  var req = event.request;
+  var res = event.response;
+  var uri = req.uri;
+  var value;
+
+  var lastSlash = uri.lastIndexOf("/");
+  var hasExtension = uri.lastIndexOf(".") > lastSlash;
+
+  if (res.statusCode >= 400) {
+    // Never let a 404 (or any error) stick in a browser.
+    value = CC.revalidate;
+  } else if (req.querystring && req.querystring.v) {
+    value = CC.immutable;
+  } else if (!hasExtension || PAGE.test(uri)) {
+    value = CC.revalidate;
+  } else {
+    value = CC.day;
+  }
+
+  res.headers["cache-control"] = { value: value };
+  return res;
+}",
+        "FunctionConfig": {
+          "Comment": "Cache-Control by file type",
+          "Runtime": "cloudfront-js-2.0",
+        },
+        "Name": "UkeOOnoSiteStack-cache-control",
       },
       "Type": "AWS::CloudFront::Function",
     },

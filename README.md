@@ -62,6 +62,19 @@ added automatically; see `fringe-2026.md` for the full shape:
 
 Each section only renders when the entry has content for it.
 
+## Caching
+
+Browsers are told how long to keep each file by a CloudFront Function
+(`packages/cdk/src/cache-control-function.ts`, viewer-response):
+
+- **Pages** (and any error) revalidate on every visit, so changes show at once.
+- **Versioned assets** (`?v=<hash>`) are kept for a year. The site build adds
+  a hash of each file's contents to every local file a page links to (the
+  `version-assets` transform), so a changed file always gets a new URL.
+- **Everything else** is kept for a day.
+
+Each deploy also invalidates CloudFront's own cache (`/*`).
+
 ## Configuration
 
 - **Domain** is centralised in `packages/cdk/src/app.ts` (`CONFIG.domain`).

@@ -7,6 +7,7 @@
 //   3. Sample of sitemap URLs all return 200
 //   4. Unknown path returns 404 + custom 404 page body
 //   5. www -> apex 301 canonicalisation
+//   6. Cache-Control: pages revalidate, the versioned stylesheet is immutable
 //
 // Env:
 //   BASE_URL          default https://uke-o-ono.com
@@ -179,6 +180,21 @@ if (checkWww) {
 } else {
   console.log(`  - www → apex skipped (BASE_URL host ${apex} != ${CANONICAL_HOST})`);
 }
+
+// -------- 6. Cache-Control (set by the viewer-response CloudFront Function) --------
+await step("cache-control: page revalidates, versioned CSS immutable", async () => {
+  await withRetry("cache-control", async () => {
+    const page = await request(`${BASE_URL}/`, { redirect: "follow" });
+    const pageCc = page.headers.get("cache-control") ?? "";
+    expect(pageCc.includes("must-revalidate"), `homepage Cache-Control is "${pageCc}"`);
+    const css = /href="([^"]*styles\.css\?v=[^"]+)"/.exec(await page.text())?.[1];
+    expect(css !== undefined, "homepage has no versioned stylesheet (styles.css?v=…)");
+    const res = await request(new URL(css, `${BASE_URL}/`).href, { method: "HEAD" });
+    expect(res.status === 200, `stylesheet ${css} → ${res.status}`);
+    const cssCc = res.headers.get("cache-control") ?? "";
+    expect(cssCc.includes("immutable"), `stylesheet Cache-Control is "${cssCc}"`);
+  });
+});
 
 // -------- summary --------
 const failed = results.filter((r) => !r.ok);

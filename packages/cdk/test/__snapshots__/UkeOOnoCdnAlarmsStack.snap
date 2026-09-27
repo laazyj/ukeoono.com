@@ -196,6 +196,99 @@
       },
       "Type": "AWS::CloudWatch::Alarm",
     },
+    "ukeoonocomcdnAlarmsDefaultBehaviorViewerResponseExecutionErrorsAlarm8BCB48A4": {
+      "Properties": {
+        "AlarmActions": [
+          {
+            "Fn::ImportValue": "UkeOOnoUsEast1AlertsStack:ExportsOutputRefukeoonocomusEast1Alerts510483E25B0B10E7",
+          },
+        ],
+        "AlarmDescription": "CloudFront Function on default behavior (viewer-response) is raising execution errors. Threshold: > 0 errors in 1 minute.",
+        "AlarmName": "uke-o-ono-cdn-alarms-stack/uke-o-ono-com/cdn-alarms/default-behavior-viewer-response-execution-errors",
+        "ComparisonOperator": "GreaterThanThreshold",
+        "DatapointsToAlarm": 1,
+        "Dimensions": [
+          {
+            "Name": "FunctionName",
+            "Value": "UkeOOnoSiteStack-cache-control",
+          },
+          {
+            "Name": "Region",
+            "Value": "Global",
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "FunctionExecutionErrors",
+        "Namespace": "AWS/CloudFront",
+        "Period": 60,
+        "Statistic": "Sum",
+        "Threshold": 0,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "ukeoonocomcdnAlarmsDefaultBehaviorViewerResponseThrottlesAlarmF9E93D9B": {
+      "Properties": {
+        "AlarmActions": [
+          {
+            "Fn::ImportValue": "UkeOOnoUsEast1AlertsStack:ExportsOutputRefukeoonocomusEast1Alerts510483E25B0B10E7",
+          },
+        ],
+        "AlarmDescription": "CloudFront Function on default behavior (viewer-response) is being throttled - likely exceeding its 1ms compute budget. Threshold: > 0 throttles in 1 minute.",
+        "AlarmName": "uke-o-ono-cdn-alarms-stack/uke-o-ono-com/cdn-alarms/default-behavior-viewer-response-throttles",
+        "ComparisonOperator": "GreaterThanThreshold",
+        "DatapointsToAlarm": 1,
+        "Dimensions": [
+          {
+            "Name": "FunctionName",
+            "Value": "UkeOOnoSiteStack-cache-control",
+          },
+          {
+            "Name": "Region",
+            "Value": "Global",
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "FunctionThrottles",
+        "Namespace": "AWS/CloudFront",
+        "Period": 60,
+        "Statistic": "Sum",
+        "Threshold": 0,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "ukeoonocomcdnAlarmsDefaultBehaviorViewerResponseValidationErrorsAlarm4326FE0B": {
+      "Properties": {
+        "AlarmActions": [
+          {
+            "Fn::ImportValue": "UkeOOnoUsEast1AlertsStack:ExportsOutputRefukeoonocomusEast1Alerts510483E25B0B10E7",
+          },
+        ],
+        "AlarmDescription": "CloudFront Function on default behavior (viewer-response) is producing validation errors. Threshold: > 0 errors in 1 minute.",
+        "AlarmName": "uke-o-ono-cdn-alarms-stack/uke-o-ono-com/cdn-alarms/default-behavior-viewer-response-validation-errors",
+        "ComparisonOperator": "GreaterThanThreshold",
+        "DatapointsToAlarm": 1,
+        "Dimensions": [
+          {
+            "Name": "FunctionName",
+            "Value": "UkeOOnoSiteStack-cache-control",
+          },
+          {
+            "Name": "Region",
+            "Value": "Global",
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "FunctionValidationErrors",
+        "Namespace": "AWS/CloudFront",
+        "Period": 60,
+        "Statistic": "Sum",
+        "Threshold": 0,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
     "ukeoonocomcdnAlarmsErrorRateAlarm6D90E239": {
       "Properties": {
         "AlarmActions": [
