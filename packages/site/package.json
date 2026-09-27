@@ -20,9 +20,6 @@
           },
           {
             "env": "GITHUB_SHA"
-          },
-          {
-            "runtime": "date +%Y-%m-%d"
           }
         ]
       },

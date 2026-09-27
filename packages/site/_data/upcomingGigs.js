@@ -1,8 +1,7 @@
 import site from "./site.json" with { type: "json" };
 
 // A gig without a stated finish is assumed to run about an hour. Only used to
-// give each schema.org Event an endDate (Google recommends one) and to decide
-// when a gig has finished.
+// give each schema.org Event an endDate (Google recommends one).
 const DEFAULT_MINUTES = 60;
 
 // Edinburgh is on BST for half the year and GMT for the rest, and gigs land on
@@ -35,12 +34,10 @@ function dateLabels(date) {
   };
 }
 
-// The gigs in site.json that haven't finished yet, in date order, with ISO
-// start/end instants (for the schema.org Event JSON-LD) and display labels.
-// "Now" is the build time, so a gig drops off at the first build after it
-// ends; the deploy workflow rebuilds daily as well as on every merge.
+// The gigs in site.json, in date order, with ISO start/end instants (for the
+// schema.org Event JSON-LD) and display labels. Nothing expires on its own: a
+// gig stays on the home page until it's removed from site.json.
 export default function () {
-  const now = Date.now();
   return site.gigs
     .map((gig) => {
       const offset = ukUtcOffset(gig.date);
@@ -59,6 +56,5 @@ export default function () {
         endDate: new Date(end).toISOString(),
       };
     })
-    .filter((gig) => Date.parse(gig.endDate) > now)
     .sort((a, b) => a.startDate.localeCompare(b.startDate));
 }

@@ -37,9 +37,8 @@ Add an entry to `gigs` in `packages/site/_data/site.json`: `name`, `url` (the
 gig's own page, which its name links to), `blurb`, `venue`, `address`,
 `mapUrl`, `date` (`YYYY-MM-DD`), `startTime`, optional `endTime`, optional
 `ticketsUrl`/`ticketsLabel` (no tickets means "free in"), and an optional
-`festival` (`name`, `url`) when it's part of one. Gigs are sorted by date and drop off the home
-page at the first build after they finish, so old entries can be deleted at
-leisure.
+`festival` (`name`, `url`) when it's part of one. Gigs are sorted by date and
+stay on the home page until you remove them; nothing expires automatically.
 
 ## Configuration
 

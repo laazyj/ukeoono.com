@@ -38,8 +38,9 @@ packages: `@uke-o-ono/site` (Eleventy) and `@uke-o-ono/cdk` (composureCDK).
 
 uke-o-ono.com is the online gig poster for Uke O Ono, an Edinburgh ukulele
 band ("Ballads & Bangers"). It is not a blog. The home page lists upcoming
-gigs from `site.json` (`gigs`); a gig drops off automatically at the first
-build after it ends. Instagram is the place for anything that might change.
+gigs from `site.json` (`gigs`). Gigs never expire automatically: the band
+decides when one comes off, so don't add date-based filtering or scheduled
+rebuilds. Instagram is the place for anything that might change.
 Keep it minimal: fast, no build-time data fetching.
 
 ## Voice & copy

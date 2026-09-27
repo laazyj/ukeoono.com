@@ -3,10 +3,6 @@ name: deploy
 on:
   push:
     branches: [main]
-  # Rebuild daily so a gig drops off the home page once it has happened, even
-  # when nothing has been merged (upcomingGigs.js filters on build time).
-  schedule:
-    - cron: "15 3 * * *"
   workflow_dispatch:
 
 permissions:
