@@ -164,7 +164,7 @@ setlist:
   - { song: "This Is the Life", artist: "Amy Macdonald" }
   - { song: "I've Got a Feeling", artist: "The Beatles" }
   - { song: "Kiss Me", artist: "Sixpence None the Richer", video: "OvchoH2-P9I" }
-  - { song: "Losing My Religion", artist: "R.E.M." }
+  - { song: "Losing My Religion", artist: "R.E.M.", video: "jAexpe4CUKI" }
   - { song: "Take Me Out", artist: "Franz Ferdinand" }
   - { song: "I Will Wait", artist: "Mumford & Sons", video: "VkAUwBi14nI" }
   - { song: "Hot Stuff", artist: "Donna Summer", video: "_ymUOfXbnZc" }
