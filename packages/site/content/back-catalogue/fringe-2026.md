@@ -173,7 +173,7 @@ setlist:
 extras:
   - { song: "Take On Me", artist: "a-ha", video: "bFH7kewFXhQ" }
   - { song: "9 to 5", artist: "Dolly Parton" }
-  - { song: "Time After Time", artist: "Cyndi Lauper" }
+  - { song: "Time After Time", artist: "Cyndi Lauper", video: "mB7n95QVBW4" }
 ---
 
 Ten shows in August: Bowlers Rest in Leith, Fingers Piano Bar in the New Town,
