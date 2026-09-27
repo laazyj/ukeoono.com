@@ -1,0 +1,46 @@
+---
+layout: layouts/base.njk
+---
+{#- One back-catalogue entry: a festival run or a one-off gig, from a
+    content/back-catalogue/*.md file. Each section renders only when the
+    entry has content for it. -#}
+{#- A song on the sheet. `n` is its place in the running order, if it has one. -#}
+{% macro songRow(s, n) %}
+<li class="song">
+  {% if n %}<span class="song-n">{{ n }}</span>{% endif %}
+  <span class="song-name">{{ s.song }}</span>
+  <span class="song-artist">{{ s.artist }}</span>
+</li>
+{% endmacro %}
+<main class="entry">
+
+  <section class="hero hero--compact">
+    <a class="back" href="{{ '/back-catalogue/' | rel }}">The back catalogue</a>
+    {% if logo %}<img class="festival-logo" src="{{ logo.src | rel }}" alt="{{ logo.alt }}" width="100" height="100" />{% endif %}
+    <h1 class="hero-title">{{ title }}</h1>
+    <p class="hero-show entry-when">{{ dates }}, {{ venues }}</p>
+    <div class="hero-blurb">{{ content | safe }}</div>
+  </section>
+
+  {% if setlist %}
+  <section class="sheet" aria-labelledby="setlist-head">
+    <h2 class="sheet-head" id="setlist-head">The set list</h2>
+    <ol class="songs">
+      {% for s in setlist %}{{ songRow(s, loop.index) }}{% endfor %}
+    </ol>
+  </section>
+  {% endif %}
+
+  {% if extras %}
+  <section aria-labelledby="extras-head">
+    <h2 class="section-head" id="extras-head">Off the list</h2>
+    <p>One-offs, requests and the odd dare.</p>
+    <div class="sheet">
+      <ul class="songs songs--extras">
+        {% for s in extras %}{{ songRow(s) }}{% endfor %}
+      </ul>
+    </div>
+  </section>
+  {% endif %}
+
+</main>

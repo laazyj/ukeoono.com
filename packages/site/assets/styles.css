@@ -78,8 +78,9 @@ body::after {
   padding: 1.5rem 1.4rem 3rem;
 }
 
-/* The home page runs wider so two gig tickets fit side by side. */
-.wrap:has(.home) {
+/* Pages that set `wide` (home, back catalogue) run wider so tickets fit
+   side by side. */
+.wrap--wide {
   max-width: var(--measure-home);
 }
 
@@ -90,8 +91,10 @@ a {
 /* ------------------------------ Header / footer ---------------------- */
 header.site {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0.6rem;
+  justify-content: space-between;
+  gap: 0.6rem 1.2rem;
   padding-bottom: 1.1rem;
   margin-bottom: 0.5rem;
 }
@@ -115,6 +118,27 @@ header.site {
   color: var(--cream);
   margin-right: 0.5rem;
   font-size: 0.9rem;
+}
+
+.site-nav {
+  display: flex;
+  gap: 1.2rem;
+  font-family: Anton, sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.site-nav a {
+  color: var(--cream);
+  text-decoration: none;
+  padding-bottom: 2px;
+  border-bottom: 3px solid transparent;
+}
+
+.site-nav a:hover,
+.site-nav a[aria-current="page"] {
+  border-bottom-color: var(--cream);
 }
 
 footer.site {
@@ -281,17 +305,25 @@ footer.site {
    perforated where you'd tear it off, then what, where and when. */
 .gig-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
+
+  /* auto-fill, not auto-fit, so a lone ticket keeps its size rather than
+     stretching across the page. */
+  grid-template-columns: repeat(auto-fill, minmax(min(26rem, 100%), 1fr));
   gap: 1.6rem;
+}
+
+/* Cream panel shared by gig tickets and set-list sheets. */
+.gig-card,
+.sheet {
+  background: var(--cream);
+  color: var(--ink);
+  border-radius: 4px;
+  box-shadow: 0.5rem 0.5rem 0 rgb(22 17 13 / 45%);
 }
 
 .gig-card {
   display: flex;
   flex-direction: column;
-  background: var(--cream);
-  color: var(--ink);
-  border-radius: 4px;
-  box-shadow: 0.5rem 0.5rem 0 rgb(22 17 13 / 45%);
 }
 
 .gig-card__date {
@@ -384,6 +416,162 @@ footer.site {
 
 .no-gigs {
   font-size: 1.12rem;
+}
+
+/* ------------------------------ Back catalogue --------------------- */
+
+/* A played gig reuses the upcoming ticket, stamped as used. */
+.gig-card--played {
+  /* The whole card is a link; keep it ink, not the global cream link. */
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.gig-card--played .gig-card__body {
+  position: relative;
+}
+
+/* Leave room for the stamp. */
+.gig-card--played .venue-name {
+  padding-right: 6.5rem;
+}
+
+.gig-card--played:hover .venue-name {
+  text-decoration: underline;
+  text-decoration-color: var(--red);
+  text-decoration-thickness: 3px;
+}
+
+.gig-card__date small {
+  margin-left: 0.4rem;
+  font-family: Archivo, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: none;
+  color: var(--cream-dim);
+}
+
+.played {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.1rem 0.7rem;
+  font-size: 1.15rem;
+  letter-spacing: 0.1em;
+  transform: rotate(8deg);
+}
+
+.gig-card__has {
+  margin-top: auto;
+  padding-top: 0.9rem;
+  font-weight: 800;
+  color: var(--red-deep);
+}
+
+.more-link {
+  margin: 1.4rem 0 0;
+}
+
+.more-link a {
+  font-weight: 800;
+}
+
+/* Entry pages and the index open with a smaller hero than the home page. */
+.hero--compact .hero-title {
+  font-size: clamp(2.8rem, 8vw, 5.2rem);
+}
+
+.back {
+  display: inline-block;
+  margin-bottom: 0.4rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+/* The festival's own logo on a small cream sticker; its artwork often shares
+   the field's red. */
+.festival-logo {
+  float: right;
+  width: 6.2rem;
+  height: 6.2rem;
+  margin: 0 0 0.6rem 1.1rem;
+  padding: 7px;
+  object-fit: contain;
+  background: var(--cream);
+  border-radius: 14px;
+  box-shadow: 0.25rem 0.25rem 0 rgb(22 17 13 / 45%);
+  transform: rotate(-5deg);
+}
+
+.entry-when {
+  font-size: clamp(1.1rem, 3vw, 1.45rem);
+  line-height: 1.2;
+}
+
+.hero-blurb p {
+  margin: 0;
+}
+
+/* The set list: a cream sheet, numbered because the order is the running
+   order. Two columns where there's room. */
+.sheet {
+  margin: 1rem 0 0;
+  padding: 1.6rem 1.8rem 1.2rem;
+}
+
+.sheet-head {
+  margin: 0 0 0.6rem;
+  border-bottom: 4px solid var(--ink);
+  font-family: Anton, sans-serif;
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  text-transform: uppercase;
+}
+
+.songs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  columns: 2 22rem;
+  column-gap: 2.4rem;
+}
+
+.song {
+  display: grid;
+  grid-template-columns: 2.2rem 1fr;
+  grid-template-areas:
+    "n name"
+    ". artist";
+  padding: 0.55rem 0;
+  border-bottom: 1px solid rgb(22 17 13 / 15%);
+  break-inside: avoid;
+}
+
+.song-n {
+  grid-area: n;
+  font-family: Anton, sans-serif;
+  font-size: 1.3rem;
+  color: var(--red-deep);
+}
+
+.song-name {
+  grid-area: name;
+  font-family: Anton, sans-serif;
+  font-size: 1.35rem;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.song-artist {
+  grid-area: artist;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+/* Off-list songs have no running order, so no number column. */
+.songs--extras .song {
+  grid-template:
+    "name"
+    "artist" / 1fr;
 }
 
 /* ------------------------------ Follow ------------------------------- */

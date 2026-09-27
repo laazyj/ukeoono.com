@@ -1,0 +1,5 @@
+{
+  "layout": "layouts/back-catalogue-entry.njk",
+  "permalink": "/back-catalogue/{{ page.fileSlug }}/",
+  "wide": true
+}

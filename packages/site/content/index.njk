@@ -1,6 +1,7 @@
 ---
 layout: layouts/base.njk
 title: ""
+wide: true
 ---
 {% set s = site.social %}
 
@@ -42,6 +43,18 @@ title: ""
     <p class="no-gigs">Nothing booked right now. New dates land on Instagram first.</p>
     {% endif %}
   </section>
+
+  {% if collections.backCatalogue.length %}
+  <section id="back-catalogue" aria-labelledby="back-catalogue-head">
+    <h2 class="section-head" id="back-catalogue-head">The back catalogue</h2>
+    <div class="gig-cards">
+      {% for entry in collections.backCatalogue.slice(0, 3) %}
+      {% include "partials/back-catalogue-card.njk" %}
+      {% endfor %}
+    </div>
+    <p class="more-link"><a href="{{ '/back-catalogue/' | rel }}">The whole back catalogue</a>, with set lists from past gigs.</p>
+  </section>
+  {% endif %}
 
   <section class="follow" id="follow" aria-labelledby="follow-head">
     <h2 class="section-head" id="follow-head">Stay in the loop</h2>

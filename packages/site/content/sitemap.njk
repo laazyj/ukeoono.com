@@ -4,5 +4,9 @@ permalink: /sitemap.xml
 <?xml version="1.0" encoding="utf-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>{{ site.url }}/</loc></url>
+  <url><loc>{{ site.url }}/back-catalogue/</loc></url>
+  {%- for entry in collections.backCatalogue %}
+  <url><loc>{{ site.url }}{{ entry.url }}</loc></url>
+  {%- endfor %}
   <url><loc>{{ site.url }}/privacy/</loc></url>
 </urlset>

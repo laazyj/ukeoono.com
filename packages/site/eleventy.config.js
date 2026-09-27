@@ -10,6 +10,11 @@ export default function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy({ assets: "assets" });
   eleventyConfig.addPassthroughCopy({ static: "/" });
 
+  // Past gigs, one Markdown file each, newest first by their `date`.
+  eleventyConfig.addCollection("backCatalogue", (api) =>
+    api.getFilteredByGlob("./content/back-catalogue/*.md").reverse(),
+  );
+
   eleventyConfig.addGlobalData("currentYear", () => new Date().getFullYear());
   eleventyConfig.addGlobalData("analytics", () => ({
     measurementId: process.env.GA_MEASUREMENT_ID || null,
