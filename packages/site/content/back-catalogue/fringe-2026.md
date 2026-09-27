@@ -160,7 +160,7 @@ photos:
 setlist:
   - { song: "Fisherman's Blues", artist: "The Waterboys", video: "ptfufQ1c3Ic" }
   - { song: "In Hell I'll Be in Good Company", artist: "The Dead South" }
-  - { song: "Austin", artist: "Dasha" }
+  - { song: "Austin", artist: "Dasha", video: "MdxD1I9DKp8" }
   - { song: "This Is the Life", artist: "Amy Macdonald" }
   - { song: "I've Got a Feeling", artist: "The Beatles" }
   - { song: "Kiss Me", artist: "Sixpence None the Richer", video: "OvchoH2-P9I" }
