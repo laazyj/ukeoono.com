@@ -171,8 +171,9 @@ setlist:
   - { song: "Pink Pony Club", artist: "Chappell Roan", video: "Vow0-bplmzw" }
   - { song: "Dreams", artist: "The Cranberries" }
 extras:
-  - { song: "Take On Me", artist: "a-ha" }
+  - { song: "Take On Me", artist: "a-ha", video: "bFH7kewFXhQ" }
   - { song: "9 to 5", artist: "Dolly Parton" }
+  - { song: "Time After Time", artist: "Cyndi Lauper" }
 ---
 
 Ten shows in August: Bowlers Rest in Leith, Fingers Piano Bar in the New Town,
