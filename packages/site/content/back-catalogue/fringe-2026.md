@@ -169,7 +169,7 @@ setlist:
   - { song: "I Will Wait", artist: "Mumford & Sons", video: "VkAUwBi14nI" }
   - { song: "Hot Stuff", artist: "Donna Summer", video: "_ymUOfXbnZc" }
   - { song: "Pink Pony Club", artist: "Chappell Roan", video: "Vow0-bplmzw" }
-  - { song: "Dreams", artist: "The Cranberries" }
+  - { song: "Dreams", artist: "The Cranberries", video: "9snf58klM70" }
 extras:
   - { song: "Take On Me", artist: "a-ha", video: "bFH7kewFXhQ" }
   - { song: "9 to 5", artist: "Dolly Parton" }
