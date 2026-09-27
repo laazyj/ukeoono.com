@@ -12,6 +12,8 @@
   --cream-dim: #e6dcba;
   --ink: #16110d;
   --ink-soft: #2e2820;
+  --film-edge: #e8b33a;
+  --shadow-panel: 0.5rem 0.5rem 0 rgb(22 17 13 / 45%);
   --measure: 60rem;
   --measure-home: 72rem;
 
@@ -262,12 +264,18 @@ footer.site {
   box-shadow: 0.4rem 0.4rem 0 rgb(22 17 13 / 40%);
 }
 
-.band-strip img {
+/* Photos cropped to a fixed shape; each use sets its own aspect ratio. */
+.band-strip img,
+.gig-card__photo,
+.film__frame img {
   display: block;
   width: 100%;
   height: auto;
-  aspect-ratio: 3 / 4;
   object-fit: cover;
+}
+
+.band-strip img {
+  aspect-ratio: 3 / 4;
 }
 
 @media (width <= 620px) {
@@ -318,7 +326,7 @@ footer.site {
   background: var(--cream);
   color: var(--ink);
   border-radius: 4px;
-  box-shadow: 0.5rem 0.5rem 0 rgb(22 17 13 / 45%);
+  box-shadow: var(--shadow-panel);
 }
 
 .gig-card {
@@ -440,6 +448,11 @@ footer.site {
   text-decoration: underline;
   text-decoration-color: var(--red);
   text-decoration-thickness: 3px;
+}
+
+.gig-card__photo {
+  aspect-ratio: 16 / 9;
+  object-position: 50% 35%;
 }
 
 .gig-card__date small {
@@ -572,6 +585,92 @@ footer.site {
   grid-template:
     "name"
     "artist" / 1fr;
+}
+
+/* Photos: a strip of black film with sprocket holes top and bottom and
+   the frame number printed under each, like a contact sheet. */
+.film {
+  --sprockets: repeating-linear-gradient(
+    90deg,
+    transparent 0 10px,
+    color-mix(in srgb, var(--cream) 70%, transparent) 10px 20px,
+    transparent 20px 32px
+  );
+
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: 1.4rem 6px;
+  list-style: none;
+  margin: 0;
+  padding: 1.7rem 10px;
+  background:
+    var(--sprockets) top 0.5rem left / 100% 0.55rem no-repeat,
+    var(--sprockets) bottom 0.5rem left / 100% 0.55rem no-repeat,
+    var(--ink);
+  box-shadow: var(--shadow-panel);
+}
+
+.film__frame a {
+  display: block;
+  cursor: zoom-in;
+}
+
+/* Thumbnails are exported as square crops. */
+.film__frame img {
+  aspect-ratio: 1;
+}
+
+.film__number {
+  display: block;
+  padding-top: 0.15rem;
+  font-family: Anton, sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  color: var(--film-edge);
+}
+
+.lightbox {
+  max-width: min(94vw, 70rem);
+  max-height: 94vh;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--cream);
+}
+
+.lightbox::backdrop {
+  background: rgb(22 17 13 / 90%);
+}
+
+.lightbox figure {
+  margin: 0;
+}
+
+.lightbox img {
+  display: block;
+  max-width: 100%;
+  max-height: 78vh;
+  margin: 0 auto;
+  border: 6px solid var(--cream);
+}
+
+.lightbox figcaption {
+  margin-top: 0.6rem;
+  font-size: 0.95rem;
+}
+
+.lightbox__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1rem;
+  margin-top: 0.8rem;
+  font-family: Anton, sans-serif;
+  letter-spacing: 0.05em;
+}
+
+.lightbox__bar [data-close] {
+  margin-left: auto;
 }
 
 /* ------------------------------ Follow ------------------------------- */

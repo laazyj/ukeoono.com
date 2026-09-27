@@ -43,4 +43,78 @@ layout: layouts/base.njk
   </section>
   {% endif %}
 
+  {% if photos %}
+  <section aria-labelledby="photos-head">
+    <h2 class="section-head" id="photos-head">Photos</h2>
+    {#- A strip of film: square frames, numbered like the edge print on a
+        negative. Each links to the full-size print; the lightbox below
+        takes over when JavaScript is on. -#}
+    <ol class="film">
+      {% for p in photos %}
+      <li class="film__frame">
+        <a href="{{ (photoBase + p.n + '.jpg') | rel }}" data-caption="{{ p.where }}">
+          <img src="{{ (photoBase + p.n + '-thumb.jpg') | rel }}" alt="{{ p.alt }}" width="400" height="400" loading="lazy" decoding="async" />
+        </a>
+        <span class="film__number" aria-hidden="true">{{ loop.index }}A</span>
+      </li>
+      {% endfor %}
+    </ol>
+  </section>
+  {% endif %}
+
 </main>
+
+{% if photos %}
+<dialog class="lightbox" aria-label="Photo viewer">
+  <figure>
+    <img alt="" />
+    <figcaption></figcaption>
+  </figure>
+  <div class="lightbox__bar">
+    <button class="btn btn--primary" type="button" data-step="-1">Previous</button>
+    <span data-count></span>
+    <button class="btn btn--primary" type="button" data-step="1">Next</button>
+    <button class="btn btn--primary" type="button" data-close>Close</button>
+  </div>
+</dialog>
+<script>
+  // Open film frames in the lightbox; arrow keys step, Escape closes.
+  (function () {
+    var links = [].slice.call(document.querySelectorAll(".film a"));
+    var box = document.querySelector(".lightbox");
+    if (!box.showModal) return;
+    var img = box.querySelector("img");
+    var caption = box.querySelector("figcaption");
+    var count = box.querySelector("[data-count]");
+    var at = 0;
+    function show(i) {
+      at = (i + links.length) % links.length;
+      var thumb = links[at].querySelector("img");
+      img.src = links[at].href;
+      img.alt = thumb.alt;
+      caption.textContent = thumb.alt + " " + links[at].dataset.caption + ".";
+      count.textContent = at + 1 + " of " + links.length;
+      // Warm the neighbours so stepping through doesn't wait on the network.
+      [at - 1, at + 1].forEach(function (i) {
+        new Image().src = links[(i + links.length) % links.length].href;
+      });
+    }
+    links.forEach(function (link, i) {
+      link.addEventListener("click", function (e) {
+        e.preventDefault();
+        show(i);
+        box.showModal();
+      });
+    });
+    box.addEventListener("click", function (e) {
+      var step = e.target.getAttribute("data-step");
+      if (step) show(at + Number(step));
+      else if (e.target === box || e.target.hasAttribute("data-close")) box.close();
+    });
+    box.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight") show(at + 1);
+      if (e.key === "ArrowLeft") show(at - 1);
+    });
+  })();
+</script>
+{% endif %}

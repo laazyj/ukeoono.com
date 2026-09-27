@@ -52,6 +52,12 @@ added automatically; see `fringe-2026.md` for the full shape:
   (card blurb and meta description), optional `logo` (`src`, `alt`)
 - `setlist`: the running order, each `{ song, artist }`
 - `extras`: songs played off the list, same shape
+- `photos`: each `{ n, where, alt }`, in gallery order, shown as a film strip
+  with a lightbox. `n` names `static/back-catalogue/<slug>/photos/<n>.jpg`
+  (at most 1600px and 300KB) and `<n>-thumb.jpg` (a 400px square crop);
+  `where` captions it. Export them black and white with metadata stripped
+  (phone photos carry GPS).
+- `cover`: the `n` of the photo shown on the entry's ticket
 - the body: the intro paragraph under the title
 
 Each section only renders when the entry has content for it.

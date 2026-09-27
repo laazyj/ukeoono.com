@@ -3,10 +3,16 @@
 {% set d = entry.data %}
 <a class="gig-card gig-card--played" href="{{ entry.url | rel }}">
   <p class="gig-card__date">{{ d.when }}{% if d.shows > 1 %} <small>{{ d.shows }} shows</small>{% endif %}</p>
+  {% if d.cover %}<img class="gig-card__photo" src="{{ (d.photoBase + d.cover + '.jpg') | rel }}" alt="" loading="lazy" />{% endif %}
   <span class="gig-card__body">
     <span class="stamp played" aria-hidden="true">Played</span>
     <span class="venue-name">{{ d.title }}</span>
     <span class="gig-card__blurb">{{ d.summary }}</span>
-    {% if d.setlist %}<span class="gig-card__has">{{ d.setlist.length }} songs on the set list</span>{% endif %}
+    {#- What's inside, e.g. "12 songs on the set list, 24 photos". -#}
+    {% set inside = [
+      d.setlist and (d.setlist.length + " songs on the set list"),
+      d.photos and (d.photos.length + " photos")
+    ] | compact %}
+    {% if inside.length %}<span class="gig-card__has">{{ inside | join(", ") }}</span>{% endif %}
   </span>
 </a>
