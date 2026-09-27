@@ -36,10 +36,12 @@ packages: `@uke-o-ono/site` (Eleventy) and `@uke-o-ono/cdk` (composureCDK).
 
 ## What this site is
 
-uke-o-ono.com is a single-page online flyer for Uke O Ono, an Edinburgh
-ukulele band playing PBH's Free Fringe 2026 ("Ballads & Bangers"). It is not a
-blog. Content is a fixed list of August 2026 gigs plus an Instagram link for
-up-to-date info. Keep it minimal: one page, fast, no build-time data fetching.
+uke-o-ono.com is the online gig poster for Uke O Ono, an Edinburgh ukulele
+band ("Ballads & Bangers"). It is not a blog. The home page lists upcoming
+gigs from `site.json` (`gigs`). Gigs never expire automatically: the band
+decides when one comes off, so don't add date-based filtering or scheduled
+rebuilds. Instagram is the place for anything that might change.
+Keep it minimal: fast, no build-time data fetching.
 
 ## Voice & copy
 
@@ -48,5 +50,5 @@ Site copy is short, witty, and irreverent, Edinburgh-proud, and leans into the
 
 - Avoid em-dashes in prose. Use full stops, commas, or parentheses.
   (Conventional title/aria-label separators are fine.)
-- The gig list is the hero: venues, dates, times, free entry (Free Fringe).
+- The gig list is the hero: venues, dates, times, free entry or tickets.
 - Point people at Instagram for anything that might change.

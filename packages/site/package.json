@@ -2,7 +2,7 @@
   "name": "@uke-o-ono/site",
   "version": "0.0.0",
   "private": true,
-  "description": "Single-page Fringe 2026 flyer for uke-o-ono.com (Eleventy).",
+  "description": "uke-o-ono.com: upcoming gigs for Uke O Ono (Eleventy).",
   "type": "module",
   "scripts": {
     "clean": "rm -rf dist",

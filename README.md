@@ -6,8 +6,8 @@
 
 [![uke-o-ono.com](packages/site/static/og-image.jpg)](https://uke-o-ono.com)
 
-Monorepo for **uke-o-ono.com** — a single-page online flyer for Uke O Ono, an
-Edinburgh ukulele band playing PBH's Free Fringe 2026 ("Ballads & Bangers").
+Monorepo for **uke-o-ono.com** — the online gig poster for Uke O Ono, an
+Edinburgh ukulele band playing "Ballads & Bangers".
 
 Built the same way as [ukehoot.net](https://ukehoot.net): an Nx monorepo with an
 Eleventy static site and a [composureCDK](https://github.com/laazyj/composureCDK)
@@ -18,7 +18,7 @@ AWS deployment (S3 + CloudFront + ACM). DNS is hosted at Cloudflare — see the
 
 | Package           | What it is                                      |
 | ----------------- | ----------------------------------------------- |
-| `@uke-o-ono/site` | Eleventy static site (the flyer).               |
+| `@uke-o-ono/site` | Eleventy static site (the gig poster).          |
 | `@uke-o-ono/cdk`  | composureCDK app — S3/CloudFront/ACM + CI OIDC. |
 
 ## Common commands
@@ -30,6 +30,15 @@ npm run verify       # format:check + build + lint + test (the CI gate)
 npm run cdk:diff     # diff infrastructure against AWS
 npm run cdk:deploy   # deploy (CI does this on push to main)
 ```
+
+## Adding a gig
+
+Add an entry to `gigs` in `packages/site/_data/site.json`: `name`, `url` (the
+gig's own page, which its name links to), `blurb`, `venue`, `address`,
+`mapUrl`, `date` (`YYYY-MM-DD`), `startTime`, optional `endTime`, optional
+`ticketsUrl`/`ticketsLabel` (no tickets means "free in"), and an optional
+`festival` (`name`, `url`) when it's part of one. Gigs are sorted by date and
+stay on the home page until you remove them; nothing expires automatically.
 
 ## Configuration
 

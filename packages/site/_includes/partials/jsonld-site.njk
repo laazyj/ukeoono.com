@@ -21,13 +21,12 @@
       "areaServed": {{ (site.city + ", Scotland") | dump | safe }},
       "sameAs": {{ [site.social.instagram, site.social.facebook] | compact | dump | safe }}
     }{% for p in site.team %},
-    {{ p | personNode | dump | safe }}{% endfor %}{% for e in eventList %},
-    {% set fest = e.festival or site.festival %}
+    {{ p | personNode | dump | safe }}{% endfor %}{% for e in upcomingGigs %},
     {
       "@type": "Event",
       "@id": "{{ site.url }}/#gig-{{ e.startDate }}",
-      "name": {{ (e.name or site.author.name + " — " + site.show.title) | dump | safe }},
-      "description": {{ (e.blurb or site.show.blurb) | dump | safe }},
+      "name": {{ (site.author.name + " at " + e.name) | dump | safe }},
+      "description": {{ e.blurb | dump | safe }},
       "startDate": "{{ e.startDate }}",
       "endDate": "{{ e.endDate }}",
       "eventStatus": "https://schema.org/EventScheduled",
@@ -44,12 +43,12 @@
       "inLanguage": "{{ site.language }}",
       "organizer": { "@id": "{{ site.author.id }}" },
       "performer": { "@id": "{{ site.author.id }}" },
-      "superEvent": {
-        "@type": "{{ fest.type or "Festival" }}",
-        "name": {{ fest.name | dump | safe }}{% if fest.url %},
-        "url": {{ fest.url | dump | safe }}{% endif %}
+      {% if e.festival %}"superEvent": {
+        "@type": "{{ e.festival.type or "Festival" }}",
+        "name": {{ e.festival.name | dump | safe }}{% if e.festival.url %},
+        "url": {{ e.festival.url | dump | safe }}{% endif %}
       },
-      "location": {
+      {% endif %}      "location": {
         "@type": "Place",
         "name": {{ e.venue | dump | safe }}{% if e.address %},
         "address": {{ e.address | dump | safe }}{% endif %}{% if e.mapUrl %},
