@@ -86,11 +86,19 @@ Each deploy also invalidates CloudFront's own cache (`/*`).
 - **Google Analytics** is opt-in: set `GA_MEASUREMENT_ID` at build time to emit
   the GA4 tag and the cookie-consent banner. Unset = no analytics, no banner.
 
-## Pre-commit secret scan
+## Pre-commit checks
 
-A Husky `pre-commit` hook runs [gitleaks](https://github.com/gitleaks/gitleaks)
-against staged changes. Install it with `brew install gitleaks`, or skip a
-single commit with `git commit --no-verify`.
+A Husky `pre-commit` hook runs two scans:
+
+- **Secret scan.** [gitleaks](https://github.com/gitleaks/gitleaks) checks
+  staged changes for credentials. It's required: install it with
+  `brew install gitleaks`, or skip a single commit with
+  `git commit --no-verify`.
+- **Actions audit.** [zizmor](https://docs.zizmor.sh/) checks the workflows
+  and `dependabot.yml` for security issues. It's optional locally and skipped
+  when missing, but the `zizmor` job runs it on every PR, so installing it
+  catches findings before you push: `brew install zizmor` (or
+  `pipx install zizmor`). Run it by hand with `zizmor --offline .`.
 
 ## Contributions
 
