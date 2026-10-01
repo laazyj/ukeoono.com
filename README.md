@@ -89,8 +89,19 @@ Each deploy also invalidates CloudFront's own cache (`/*`).
 ## Pre-commit secret scan
 
 A Husky `pre-commit` hook runs [gitleaks](https://github.com/gitleaks/gitleaks)
-against staged changes. Install it with `brew install gitleaks`, or skip a
-single commit with `git commit --no-verify`.
+over staged changes to catch credentials. It's required: install it with
+`brew install gitleaks`, or skip a single commit with `git commit --no-verify`.
+
+## GitHub Actions audit
+
+[zizmor](https://docs.zizmor.sh/) checks the workflows and `dependabot.yml` for
+security issues (unpinned actions, credential persistence, template injection,
+missing update cooldowns and so on). The `zizmor` job in `pr.yml` runs it on
+every PR and fails on any finding.
+
+Locally, `npm run lint` runs it too (via `npm run lint:actions`) if zizmor is
+on `PATH`, and skips it with a note if not. Install it with `brew install
+zizmor` (or `pipx install zizmor`).
 
 ## Contributions
 

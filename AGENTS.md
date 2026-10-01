@@ -11,7 +11,7 @@ npm run format:check
 
 Fix any issues before moving on. Use npm run lint:fix and npm run format to auto-fix.
 
-## Committing (gitleaks pre-commit hook)
+## Committing (pre-commit hook)
 
 The Husky `pre-commit` hook runs a gitleaks secret scan (see the README's
 "Pre-commit secret scan"). gitleaks is a standalone binary, deliberately not an
@@ -28,6 +28,13 @@ git commit --no-verify -m "..."
 
 GitHub's server-side secret scanning still covers anything pushed, so skipping
 the local scan for secret-free changes is safe.
+
+## GitHub Actions audit (zizmor)
+
+`npm run lint` runs zizmor when it is on PATH and prints a skip note when it
+isn't (the `zizmor` PR job is the gate). A skip is expected, so don't install
+zizmor to get past it. When it does run, fix its findings rather than
+suppressing them.
 
 ## Build system
 
