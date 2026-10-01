@@ -1,7 +1,6 @@
 #!/usr/bin/env sh
-# Pre-commit checks. See README.md "Pre-commit checks" for setup.
+# Pre-commit secret scan. See README.md "Pre-commit secret scan" for setup.
 
-# Secret scan (required).
 if ! command -v gitleaks >/dev/null 2>&1; then
   echo "pre-commit: gitleaks not found in PATH." >&2
   echo "Install it (e.g. \`brew install gitleaks\`) or skip with --no-verify." >&2
@@ -10,9 +9,3 @@ fi
 
 gitleaks protect --staged --redact --no-banner --config .gitleaks.toml
 
-# GitHub Actions audit (optional locally; the zizmor PR job is the gate).
-if command -v zizmor >/dev/null 2>&1; then
-  zizmor --offline --quiet .
-else
-  echo "pre-commit: zizmor not found in PATH, skipping the Actions audit." >&2
-fi

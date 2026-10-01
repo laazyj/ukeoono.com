@@ -14,7 +14,7 @@ Fix any issues before moving on. Use npm run lint:fix and npm run format to auto
 ## Committing (pre-commit hook)
 
 The Husky `pre-commit` hook runs a gitleaks secret scan (see the README's
-"Pre-commit checks"). gitleaks is a standalone binary, deliberately not an
+"Pre-commit secret scan"). gitleaks is a standalone binary, deliberately not an
 npm dependency, so it will not be on PATH in a fresh clone or in CI. When it is
 missing the hook prints `pre-commit: gitleaks not found in PATH.` and exits
 non-zero. That is expected, not a failure to debug.
@@ -29,8 +29,12 @@ git commit --no-verify -m "..."
 GitHub's server-side secret scanning still covers anything pushed, so skipping
 the local scan for secret-free changes is safe.
 
-The hook also runs zizmor if it's installed (skipped otherwise; the `zizmor`
-PR job is the gate). Fix its findings rather than suppressing them.
+## GitHub Actions audit (zizmor)
+
+`npm run lint` runs zizmor when it is on PATH and prints a skip note when it
+isn't (the `zizmor` PR job is the gate). A skip is expected, so don't install
+zizmor to get past it. When it does run, fix its findings rather than
+suppressing them.
 
 ## Build system
 
