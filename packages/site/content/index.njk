@@ -28,12 +28,12 @@ wide: true
       <article class="gig-card">
         <p class="gig-card__date"><span>{{ g.dayLabel }}</span> {{ g.dateLabel }}</p>
         <div class="gig-card__body">
-          <h3 class="venue-name"><a href="{{ g.url }}" rel="external">{{ g.name }}</a></h3>
+          <h3 class="venue-name">{% if g.url %}<a href="{{ g.url }}" rel="external">{{ g.name }}</a>{% else %}{{ g.name }}{% endif %}</h3>
           <p class="venue-address">{% if g.mapUrl %}<a href="{{ g.mapUrl }}" rel="external">{{ g.venue }}</a>{% else %}{{ g.venue }}{% endif %}, {{ g.address }}</p>
-          <p class="gig-card__time">{{ g.timeLabel }}</p>
+          {% if g.timeLabel %}<p class="gig-card__time">{{ g.timeLabel }}</p>{% endif %}
           <p class="gig-card__blurb">{{ g.blurb }}</p>
           <p class="gig-card__cta">
-            {% if g.ticketsUrl %}<a class="btn btn--primary btn--red" href="{{ g.ticketsUrl }}" rel="external">{{ g.ticketsLabel or "Get tickets" }}</a>{% else %}<span class="stamp">Free in, just turn up</span>{% endif %}
+            {% if g.private %}<span class="stamp">Private party</span>{% elif g.ticketsUrl %}<a class="btn btn--primary btn--red" href="{{ g.ticketsUrl }}" rel="external">{{ g.ticketsLabel or "Get tickets" }}</a>{% else %}<span class="stamp">Free in, just turn up</span>{% endif %}
           </p>
         </div>
       </article>

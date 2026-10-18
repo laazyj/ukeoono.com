@@ -17,13 +17,21 @@
   },
   "gigs": [
     {
+      "name": "A Leith Wedding",
+      "blurb": "Somebody's big day, and we're the band. It's a private party, so no tickets, just our congratulations to the happy couple.",
+      "venue": "Private do",
+      "address": "Leith",
+      "date": "2026-10-10",
+      "private": true
+    },
+    {
       "name": "The Bowlers Rest Singalong",
       "url": "https://bowlersrest.com/",
-      "blurb": "The Fringe is done, the singing is not. A proper singalong session back at our Leith local: bring a voice, bring a ukulele, bring both.",
+      "blurb": "The residency starts here. We're back at our Leith local every month from now on, so bring a voice, bring a ukulele, bring both.",
       "venue": "Bowlers Rest",
       "address": "24 Mitchell St, Leith, Edinburgh EH6 7BD",
       "mapUrl": "https://bowlersrest.com/",
-      "date": "2026-09-30",
+      "date": "2026-10-28",
       "startTime": "20:00",
       "endTime": "23:00"
     },
@@ -39,6 +47,25 @@
       "endTime": "22:00",
       "ticketsUrl": "https://www.beatlesmarathon.com/",
       "ticketsLabel": "Tickets on sale now"
+    },
+    {
+      "name": "A Leith Wedding",
+      "blurb": "Another Leith wedding, another dance floor to fill. Private party again, so raise a glass from afar.",
+      "venue": "Private do",
+      "address": "Leith",
+      "date": "2026-11-14",
+      "private": true
+    },
+    {
+      "name": "The Bowlers Rest Hogmanay Singalong",
+      "url": "https://bowlersrest.com/",
+      "blurb": "Hogmanay, a day early. Auld Lang Syne, a sackful of bangers and a pub full of voices to sing the year out.",
+      "venue": "Bowlers Rest",
+      "address": "24 Mitchell St, Leith, Edinburgh EH6 7BD",
+      "mapUrl": "https://bowlersrest.com/",
+      "date": "2026-12-30",
+      "startTime": "20:00",
+      "endTime": "23:00"
     }
   ],
   "social": {

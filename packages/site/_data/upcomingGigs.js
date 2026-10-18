@@ -34,27 +34,34 @@ function dateLabels(date) {
   };
 }
 
-// The gigs in site.json, in date order, with ISO start/end instants (for the
-// schema.org Event JSON-LD) and display labels. Nothing expires on its own: a
-// gig stays on the home page until it's removed from site.json.
+// Start and end instants for a gig's schema.org Event JSON-LD.
+function eventTimes(gig) {
+  const offset = ukUtcOffset(gig.date);
+  const startDate = `${gig.date}T${gig.startTime}:00${offset}`;
+  const start = Date.parse(startDate);
+  let end = gig.endTime
+    ? Date.parse(`${gig.date}T${gig.endTime}:00${offset}`)
+    : start + DEFAULT_MINUTES * 60_000;
+  // A finish at or before the start ("20:00–01:00") is after midnight.
+  if (end <= start) end += 24 * 60 * 60_000;
+  return { startDate, endDate: new Date(end).toISOString() };
+}
+
+// A private gig (a wedding, say) has no public time, so it sorts last on its day.
+const sortKey = (gig) => `${gig.date}T${gig.startTime ?? "24:00"}`;
+
+// The gigs in site.json, in date order, with display labels and, for public
+// gigs, ISO start/end instants. Nothing expires on its own: a gig stays on the
+// home page until it's removed from site.json.
 export default function () {
   return site.gigs
-    .map((gig) => {
-      const offset = ukUtcOffset(gig.date);
-      const startDate = `${gig.date}T${gig.startTime}:00${offset}`;
-      const start = Date.parse(startDate);
-      let end = gig.endTime
-        ? Date.parse(`${gig.date}T${gig.endTime}:00${offset}`)
-        : start + DEFAULT_MINUTES * 60_000;
-      // A finish at or before the start ("20:00–01:00") is after midnight.
-      if (end <= start) end += 24 * 60 * 60_000;
-      return {
-        ...gig,
-        ...dateLabels(gig.date),
+    .map((gig) => ({
+      ...gig,
+      ...dateLabels(gig.date),
+      ...(gig.startTime && {
         timeLabel: gig.endTime ? `${gig.startTime}–${gig.endTime}` : gig.startTime,
-        startDate,
-        endDate: new Date(end).toISOString(),
-      };
-    })
-    .sort((a, b) => a.startDate.localeCompare(b.startDate));
+        ...eventTimes(gig),
+      }),
+    }))
+    .sort((a, b) => sortKey(a).localeCompare(sortKey(b)));
 }
