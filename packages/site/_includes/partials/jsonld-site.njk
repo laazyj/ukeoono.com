@@ -21,7 +21,7 @@
       "areaServed": {{ (site.city + ", Scotland") | dump | safe }},
       "sameAs": {{ [site.social.instagram, site.social.facebook] | compact | dump | safe }}
     }{% for p in site.team %},
-    {{ p | personNode | dump | safe }}{% endfor %}{% for e in upcomingGigs %},
+    {{ p | personNode | dump | safe }}{% endfor %}{% for e in upcomingGigs | selectattr("startDate") %},
     {
       "@type": "Event",
       "@id": "{{ site.url }}/#gig-{{ e.startDate }}",
