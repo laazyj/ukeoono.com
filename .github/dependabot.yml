@@ -10,27 +10,66 @@ updates:
     # yanked version has time to be caught upstream first.
     cooldown:
       default-days: 7
-    open-pull-requests-limit: 5
+    # Room for the weekly group PRs plus the occasional standalone major.
+    open-pull-requests-limit: 10
     commit-message:
       prefix: chore
       include: scope
+    # A dependency joins the first group it matches, so the named groups come
+    # before the catch-all. Groups without update-types take majors too.
     groups:
-      # CDK ships most weekdays and its bumps churn the synth snapshots, so it
-      # gets its own PR instead of being buried in the routine batch. Listed
-      # first on purpose: a dependency joins the first group it matches.
+      # Risky, so each gets its own PR whatever the bump.
+      # CLI, library and constructs share the cloud assembly schema, and CDK
+      # bumps churn the synth snapshots.
       aws-cdk:
         patterns:
           - "aws-cdk"
           - "aws-cdk-lib"
           - "constructs"
+      # The builders share @composurecdk/core and peer on a minimum
+      # aws-cdk-lib, so merge the aws-cdk PR first. Pre-1.0, so any minor can
+      # break the build or change the synth snapshots.
+      composurecdk:
+        patterns:
+          - "@composurecdk/*"
+      # vite is vitest's peer, so they move together.
+      vitest:
+        patterns:
+          - "vitest"
+          - "vite"
+      # Lockstep sets: minors and patches ride in the catch-all, and these keep
+      # each set's majors in one PR.
+      nx:
+        patterns:
+          - "nx"
+          - "@nx/*"
         update-types:
-          - minor
-          - patch
+          - major
+      eslint:
+        patterns:
+          - "eslint"
+          - "@eslint/*"
+          - "typescript-eslint"
+          - "eslint-config-prettier"
+        update-types:
+          - major
+      stylelint:
+        patterns:
+          - "stylelint"
+          - "stylelint-config-standard"
+        update-types:
+          - major
       # Batch routine bumps into one PR; majors still come through on their own.
       npm-minor-patch:
         update-types:
           - minor
           - patch
+        # Each gets its own PR. TypeScript minors aren't semver and
+        # typescript-eslint caps the range it supports; Eleventy bumps can
+        # quietly change the built site.
+        exclude-patterns:
+          - "typescript"
+          - "@11ty/*"
     ignore:
       # TypeScript 7.0 lacks the compiler APIs typescript-eslint needs; 7.1
       # adds them. Its PR stays red until typescript-eslint's peer range
