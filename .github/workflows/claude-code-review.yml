@@ -12,8 +12,13 @@ on:
 
 jobs:
   claude-review:
-    # Only review PRs from owners, maintainers and regular contributors.
-    if: contains(fromJSON('["OWNER","MEMBER","COLLABORATOR","CONTRIBUTOR"]'), github.event.pull_request.author_association)
+    # Only review PRs from owners, maintainers and regular contributors, opened and
+    # pushed by a person. The action fails on non-human actors, and Dependabot counts
+    # as CONTRIBUTOR once it has commits here (same guard as cdk-diff in pr.yml).
+    if: >-
+      github.event.pull_request.user.type == 'User' &&
+      contains(fromJSON('["OWNER","MEMBER","COLLABORATOR","CONTRIBUTOR"]'), github.event.pull_request.author_association) &&
+      github.triggering_actor == github.event.pull_request.user.login
 
     runs-on: ubuntu-latest
     permissions:
