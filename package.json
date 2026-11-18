@@ -31,19 +31,19 @@
     "packages/*"
   ],
   "devDependencies": {
-    "@composurecdk/eslint-plugin": "^0.11.2",
+    "@composurecdk/eslint-plugin": "^0.13.0",
     "@eslint/js": "^10.0.1",
-    "@nx/js": "^24.0.5",
+    "@nx/js": "^24.0.6",
     "@types/node": "^26.6.6",
     "eslint": "^10.14.0",
     "eslint-config-prettier": "^10.1.8",
     "husky": "^9.1.7",
     "nx": "^24.0.2",
-    "prettier": "^3.9.10",
+    "prettier": "^3.10.0",
     "stylelint": "^17.16.0",
     "stylelint-config-standard": "^40.0.0",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.72.1",
+    "typescript-eslint": "^8.72.2",
     "vite": "^8.3.6"
   },
   "overrides": {
