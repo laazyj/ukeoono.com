@@ -17,14 +17,6 @@
   },
   "gigs": [
     {
-      "name": "A Leith Wedding",
-      "blurb": "Somebody's big day, and we're the band. It's a private party, so no tickets, just our congratulations to the happy couple.",
-      "venue": "Private do",
-      "address": "Leith",
-      "date": "2026-10-10",
-      "private": true
-    },
-    {
       "name": "The Bowlers Rest Singalong",
       "url": "https://bowlersrest.com/",
       "blurb": "The residency starts here. We're back at our Leith local every month from now on, so bring a voice, bring a ukulele, bring both.",
@@ -49,12 +41,15 @@
       "ticketsLabel": "Tickets on sale now"
     },
     {
-      "name": "A Leith Wedding",
-      "blurb": "Another Leith wedding, another dance floor to fill. Private party again, so raise a glass from afar.",
-      "venue": "Private do",
-      "address": "Leith",
-      "date": "2026-11-14",
-      "private": true
+      "name": "The Bowlers Rest Singalong",
+      "url": "https://bowlersrest.com/",
+      "blurb": "The residency rolls on. Same pub, same Wednesday-night racket, a few more bangers in the bag. Bring a voice, bring a ukulele, bring both.",
+      "venue": "Bowlers Rest",
+      "address": "24 Mitchell St, Leith, Edinburgh EH6 7BD",
+      "mapUrl": "https://bowlersrest.com/",
+      "date": "2026-11-25",
+      "startTime": "20:00",
+      "endTime": "23:00"
     },
     {
       "name": "The Bowlers Rest Hogmanay Singalong",
