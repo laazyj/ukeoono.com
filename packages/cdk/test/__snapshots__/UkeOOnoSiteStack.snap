@@ -912,38 +912,6 @@ function handler(event) {
       },
       "Type": "AWS::CloudWatch::Alarm",
     },
-    "ukeoonocomsiteAlertsNumberOfNotificationsFailedToRedriveToDlqAlarm1D23E58A": {
-      "Properties": {
-        "AlarmActions": [
-          {
-            "Ref": "ukeoonocomsiteAlertsB5CA8709",
-          },
-        ],
-        "AlarmDescription": "SNS topic failed to redrive a message to a subscription dead-letter queue; messages may be lost. Threshold: > 0 failed redrives in 1 minute.",
-        "AlarmName": "uke-o-ono-site-stack/uke-o-ono-com/site-alerts/number-of-notifications-failed-to-redrive-to-dlq",
-        "ComparisonOperator": "GreaterThanThreshold",
-        "DatapointsToAlarm": 1,
-        "Dimensions": [
-          {
-            "Name": "TopicName",
-            "Value": {
-              "Fn::GetAtt": [
-                "ukeoonocomsiteAlertsB5CA8709",
-                "TopicName",
-              ],
-            },
-          },
-        ],
-        "EvaluationPeriods": 1,
-        "MetricName": "NumberOfNotificationsFailedToRedriveToDlq",
-        "Namespace": "AWS/SNS",
-        "Period": 60,
-        "Statistic": "Sum",
-        "Threshold": 0,
-        "TreatMissingData": "notBreaching",
-      },
-      "Type": "AWS::CloudWatch::Alarm",
-    },
     "ukeoonocomsiteAlertsNumberOfNotificationsFilteredOutInvalidAttributesAlarm03211C4D": {
       "Properties": {
         "AlarmActions": [
@@ -968,38 +936,6 @@ function handler(event) {
         ],
         "EvaluationPeriods": 1,
         "MetricName": "NumberOfNotificationsFilteredOut-InvalidAttributes",
-        "Namespace": "AWS/SNS",
-        "Period": 60,
-        "Statistic": "Sum",
-        "Threshold": 0,
-        "TreatMissingData": "notBreaching",
-      },
-      "Type": "AWS::CloudWatch::Alarm",
-    },
-    "ukeoonocomsiteAlertsNumberOfNotificationsRedrivenToDlqAlarm40F1C29D": {
-      "Properties": {
-        "AlarmActions": [
-          {
-            "Ref": "ukeoonocomsiteAlertsB5CA8709",
-          },
-        ],
-        "AlarmDescription": "SNS topic is redriving messages to a subscription dead-letter queue, indicating delivery failures. Threshold: > 0 redrives in 1 minute.",
-        "AlarmName": "uke-o-ono-site-stack/uke-o-ono-com/site-alerts/number-of-notifications-redriven-to-dlq",
-        "ComparisonOperator": "GreaterThanThreshold",
-        "DatapointsToAlarm": 1,
-        "Dimensions": [
-          {
-            "Name": "TopicName",
-            "Value": {
-              "Fn::GetAtt": [
-                "ukeoonocomsiteAlertsB5CA8709",
-                "TopicName",
-              ],
-            },
-          },
-        ],
-        "EvaluationPeriods": 1,
-        "MetricName": "NumberOfNotificationsRedrivenToDlq",
         "Namespace": "AWS/SNS",
         "Period": 60,
         "Statistic": "Sum",
