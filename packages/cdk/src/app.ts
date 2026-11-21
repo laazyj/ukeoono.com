@@ -3,9 +3,10 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { templateTextPolicy } from "@composurecdk/cloudformation";
+import { at, compose } from "@composurecdk/core";
 import { topicPolicyConflictPolicy } from "@composurecdk/sns";
 
-import { addCiOidc } from "./stacks/ci-oidc-stack.js";
+import { createPipeline } from "./pipeline.js";
 import { createSystem } from "./system.js";
 
 /**
@@ -78,17 +79,29 @@ export function buildApp({ account, siteContentPath, alertEmail, certArn }: Buil
     description: "CloudWatch alarms for site metrics that AWS only emits in us-east-1.",
   });
 
-  // Standalone — bootstrapped once from a workstation, then GitHub Actions
-  // assumes the role for all subsequent deploys. No wiring through createSystem.
-  const ciOidcStack = new Stack(app, "UkeOOnoCiOidcStack", {
+  // Deployed once from a workstation, then GitHub Actions assumes its role for
+  // every later deploy.
+  const ciStack = new Stack(app, "UkeOOnoCiOidcStack", {
     ...stackProps(CONFIG.primaryRegion),
     description: "GitHub Actions OIDC provider + deploy role for laazyj/ukeoono.com.",
   });
-  addCiOidc(ciOidcStack, { githubOwner: "laazyj", githubRepo: "ukeoono.com" });
 
-  createSystem(
-    { usEast1AlertsStack, siteStack, cdnAlarmsStack },
-    { domain: CONFIG.domain, siteContentPath, alertEmail, certArn },
+  // The app is two sibling systems with no edges between them: the site, and
+  // the pipeline that deploys it. `at(CONFIG.domain, ...)` keeps the site's
+  // components at `uke-o-ono.com/<key>`, the paths they had before this outer
+  // compose existed; without it every site resource would be replaced.
+  compose(
+    {
+      site: at(
+        CONFIG.domain,
+        createSystem(
+          { usEast1AlertsStack, siteStack, cdnAlarmsStack },
+          { domain: CONFIG.domain, siteContentPath, alertEmail, certArn },
+        ),
+      ),
+      pipeline: createPipeline({ ciStack }, { githubOwner: "laazyj", githubRepo: "ukeoono.com" }),
+    },
+    { site: [], pipeline: [] },
   ).build(app, CONFIG.domain);
 
   return app;

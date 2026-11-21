@@ -20,6 +20,9 @@ const STACK_NAMES = [
 const stackTemplate = (app: App, name: (typeof STACK_NAMES)[number]) =>
   Template.fromStack(app.node.findChild(name) as Stack);
 
+const deployRoles = (template: Template) =>
+  template.findResources("AWS::IAM::Role", { Properties: { RoleName: "GitHubActionsDeployRole" } });
+
 describe("app synthesis", () => {
   let app: App;
   let templates: Record<(typeof STACK_NAMES)[number], unknown>;
@@ -133,17 +136,45 @@ describe("app synthesis", () => {
   });
 
   describe("CI OIDC", () => {
-    it("creates a deploy role scoped to the ukeoono.com repo", () => {
+    // These two logical ids are deployed state, not naming: AWS allows one
+    // GitHub OIDC provider per account, and the role has a fixed name and is the
+    // one CI deploys as, so neither survives a replacement. The snapshot covers
+    // them too, but a bulk `-u` after an intended change could slip a rotated id
+    // through; this cannot. Change them only through the migration in #127.
+    it("keeps the deployed OIDC provider and deploy role logical ids", () => {
       const template = stackTemplate(app, "UkeOOnoCiOidcStack");
-      template.hasResourceProperties("AWS::IAM::Role", {
-        RoleName: "GitHubActionsDeployRole",
+      expect(Object.keys(template.findResources("Custom::AWSCDKOpenIdConnectProvider"))).toEqual([
+        "GithubOidcProviderD8241A88",
+      ]);
+      expect(Object.keys(deployRoles(template))).toEqual(["GitHubActionsDeployRoleA6F4AD3D"]);
+    });
+
+    // The trust policy is the security boundary, so it is pinned exactly: an
+    // extra subject, a dropped audience guard or a looser operator all fail.
+    // Forks mint tokens under their own `repo:<fork>/<name>:*` namespace, so
+    // they cannot satisfy these subjects.
+    it("trusts only main-branch and pull-request runs of this repo", () => {
+      const roles = Object.values(deployRoles(stackTemplate(app, "UkeOOnoCiOidcStack")));
+      expect(roles).toHaveLength(1);
+      expect(roles[0]).toHaveProperty(["Properties", "AssumeRolePolicyDocument"], {
+        Version: "2012-10-17",
+        Statement: [
+          {
+            Action: "sts:AssumeRoleWithWebIdentity",
+            Effect: "Allow",
+            Principal: { Federated: { Ref: "GithubOidcProviderD8241A88" } },
+            Condition: {
+              StringEquals: { "token.actions.githubusercontent.com:aud": "sts.amazonaws.com" },
+              StringLike: {
+                "token.actions.githubusercontent.com:sub": [
+                  "repo:laazyj/ukeoono.com:ref:refs/heads/main",
+                  "repo:laazyj/ukeoono.com:pull_request",
+                ],
+              },
+            },
+          },
+        ],
       });
-      // Subject claim must reference exactly this repo — forks/other repos
-      // mint OIDC tokens under different `repo:<owner>/<name>:*` namespaces
-      // and so cannot satisfy this StringLike condition.
-      const policyDoc = JSON.stringify(template.findResources("AWS::IAM::Role"));
-      expect(policyDoc).toContain("repo:laazyj/ukeoono.com:ref:refs/heads/main");
-      expect(policyDoc).toContain("repo:laazyj/ukeoono.com:pull_request");
     });
   });
 });
