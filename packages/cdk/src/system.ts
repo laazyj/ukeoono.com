@@ -102,7 +102,7 @@ export interface SystemOptions {
  *  2. **Dependency block** — second arg. Drives topological ordering and
  *     attaches cross-stack references when a dependency lives in another stack.
  *  3. **`.withStacks()` + `.afterBuild()`** — routes each builder to a Stack and
- *     runs post-build wiring (outputs, alarm-action policies).
+ *     adds the stack outputs.
  *
  * Cross-region note: CloudFront/Route53 metrics only emit in `us-east-1`, so
  * those alarms live in `cdnAlarmsStack` and target the standalone `usEast1Alerts`
@@ -134,6 +134,8 @@ export function createSystem(stacks: SystemStacks, options: SystemOptions) {
         .budgetName(`${domain}-monthly`)
         .limit({ amount: 4, unit: "USD" })
         .withRecommendedThresholds({ sns: ref<TopicBuilderResult>("usEast1Alerts").get("topic") })
+        // The budget's own threshold notifications already reach usEast1Alerts;
+        // an EstimatedCharges CloudWatch alarm on top would only duplicate them.
         .recommendedAlarms(false),
 
       // SITE
@@ -195,6 +197,8 @@ export function createSystem(stacks: SystemStacks, options: SystemOptions) {
       healthCheck: createHealthCheckBuilder()
         .type(HealthCheckType.HTTPS)
         .fqdn(domain)
+        // AWS/Route53 metrics emit only in us-east-1, so these alarms would never
+        // fire from siteStack; healthCheckAlarms builds them in cdnAlarmsStack.
         .recommendedAlarms(false),
       healthCheckAlarms: createHealthCheckAlarmBuilder().healthCheck(
         ref<HealthCheckBuilderResult>("healthCheck"),
@@ -248,13 +252,25 @@ export function createSystem(stacks: SystemStacks, options: SystemOptions) {
         ),
         SiteAlertsTopicArn: topicArnOutput("siteAlerts", "site-stack alarm notifications"),
       }),
-    )
-    .afterBuild((_scope, _id, results) => {
-      const usEast1Action = new SnsAction(results.usEast1Alerts.topic);
-      alarmActionsPolicy(usEast1AlertsStack, { defaults: { alarmActions: [usEast1Action] } });
-      alarmActionsPolicy(cdnAlarmsStack, { defaults: { alarmActions: [usEast1Action] } });
-      alarmActionsPolicy(siteStack, {
-        defaults: { alarmActions: [new SnsAction(results.siteAlerts.topic)] },
-      });
-    });
+    );
+}
+
+/**
+ * Sends every alarm to its region's topic: the us-east-1 stacks to
+ * `usEast1Alerts`, the site stack to `siteAlerts` (CloudWatch alarms can only
+ * target same-region topics). App-level policy rather than an `afterBuild` hook
+ * (composureCDK#784 §0/§1e): each call registers an Aspect, so it reaches every
+ * alarm in its stack, however late that alarm is created.
+ */
+export function applyAlarmActions(
+  stacks: SystemStacks,
+  topics: Record<"usEast1Alerts" | "siteAlerts", TopicBuilderResult>,
+): void {
+  const usEast1Action = new SnsAction(topics.usEast1Alerts.topic);
+  for (const stack of [stacks.usEast1AlertsStack, stacks.cdnAlarmsStack]) {
+    alarmActionsPolicy(stack, { defaults: { alarmActions: [usEast1Action] } });
+  }
+  alarmActionsPolicy(stacks.siteStack, {
+    defaults: { alarmActions: [new SnsAction(topics.siteAlerts.topic)] },
+  });
 }
