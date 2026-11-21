@@ -88,8 +88,8 @@ export function buildApp({ account, siteContentPath, alertEmail, certArn }: Buil
 
   // The app is two sibling systems with no edges between them: the site, and
   // the pipeline that deploys it. `at(CONFIG.domain, ...)` keeps the site's
-  // components at `uke-o-ono.com/<key>`, the paths they had before this outer
-  // compose existed; without it every site resource would be replaced.
+  // components at `uke-o-ono.com/<key>`; changing that path replaces every
+  // site resource.
   compose(
     {
       site: at(

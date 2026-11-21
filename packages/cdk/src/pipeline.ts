@@ -18,10 +18,10 @@ export interface PipelineStacks {
 export interface PipelineOptions {
   readonly githubOwner: string;
   readonly githubRepo: string;
-  readonly cdkBootstrapQualifier?: string;
 }
 
-const DEFAULT_CDK_QUALIFIER = "hnb659fds";
+/** CDK's default bootstrap qualifier; the account is bootstrapped with it. */
+const CDK_QUALIFIER = "hnb659fds";
 
 /**
  * The CI half of the app: how GitHub Actions gets into the account. A sibling
@@ -35,7 +35,6 @@ const DEFAULT_CDK_QUALIFIER = "hnb659fds";
 export function createPipeline(stacks: PipelineStacks, options: PipelineOptions) {
   const { ciStack } = stacks;
   const { githubOwner: owner, githubRepo: repo } = options;
-  const qualifier = options.cdkBootstrapQualifier ?? DEFAULT_CDK_QUALIFIER;
 
   return compose(
     {
@@ -79,10 +78,10 @@ export function createPipeline(stacks: PipelineStacks, options: PipelineOptions)
               .allow()
               .actions(["sts:AssumeRole"])
               .resources([
-                `arn:aws:iam::*:role/cdk-${qualifier}-deploy-role-*`,
-                `arn:aws:iam::*:role/cdk-${qualifier}-file-publishing-role-*`,
-                `arn:aws:iam::*:role/cdk-${qualifier}-image-publishing-role-*`,
-                `arn:aws:iam::*:role/cdk-${qualifier}-lookup-role-*`,
+                `arn:aws:iam::*:role/cdk-${CDK_QUALIFIER}-deploy-role-*`,
+                `arn:aws:iam::*:role/cdk-${CDK_QUALIFIER}-file-publishing-role-*`,
+                `arn:aws:iam::*:role/cdk-${CDK_QUALIFIER}-image-publishing-role-*`,
+                `arn:aws:iam::*:role/cdk-${CDK_QUALIFIER}-lookup-role-*`,
               ]),
           ]),
       ),

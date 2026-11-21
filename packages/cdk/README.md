@@ -39,7 +39,7 @@ Same-region edge (us-east-1):
 
 Pipeline (a sibling system, no edges to the site):
 
-  CiOidcStack
+  UkeOOnoCiOidcStack
 ```
 
 Three site stacks plus one pipeline stack:
@@ -59,9 +59,8 @@ Three site stacks plus one pipeline stack:
   app still spans two regions).
 - **`UkeOOnoCiOidcStack`** (`eu-west-2`) — GitHub OIDC provider and the
   `GitHubActionsDeployRole`. Built by the pipeline system; deployed once from a
-  workstation, after which CI deploys everything as that role. Both resources
-  keep construct ids pinned with `at()`: AWS allows one GitHub OIDC provider
-  per account and the role has a fixed name, so neither may be replaced.
+  workstation, after which CI deploys everything as that role. Neither resource
+  may be replaced (see [`src/pipeline.ts`](./src/pipeline.ts)).
 
 Every stack opts in to `crossRegionReferences: true` for the single
 `SiteStack → CdnAlarmsStack` edge; deployment order is inferred from the
