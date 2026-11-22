@@ -21,6 +21,9 @@
           },
           {
             "env": "GITHUB_SHA"
+          },
+          {
+            "env": "BUILD_SHA"
           }
         ]
       },
