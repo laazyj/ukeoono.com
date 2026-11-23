@@ -107,6 +107,7 @@ export function createSystem(stacks: SystemStacks, options: SystemOptions) {
 
   const bucket = ref<BucketBuilderResult>("bucket").get("bucket");
   const distribution = ref<DistributionBuilderResult>("cdn").get("distribution");
+  const alertsTopic = ref<TopicBuilderResult>("usEast1Alerts").get("topic");
   // Imported, not created: the cert is validated in Cloudflare and referenced by
   // ARN. fromCertificateArn is a plain reference (no resource, no cross-stack
   // ref); CloudFront requires the ARN to be us-east-1, which it must already be.
@@ -114,9 +115,8 @@ export function createSystem(stacks: SystemStacks, options: SystemOptions) {
 
   return compose(
     {
-      // CloudWatch alarms can only target same-region SNS topics, and every
-      // alarm here is in us-east-1. No recommended alarms on the topic itself:
-      // they fire when it can't deliver, so their email would never arrive.
+      // No recommended alarms on the topic itself: they fire when it can't
+      // deliver, so their email would never arrive.
       usEast1Alerts: createTopicBuilder()
         .displayName(`${domain} us-east-1 alerts`)
         .addSubscription("email", new EmailSubscription(alertEmail))
@@ -125,7 +125,7 @@ export function createSystem(stacks: SystemStacks, options: SystemOptions) {
       budget: createBudgetBuilder()
         .budgetName(`${domain}-monthly`)
         .limit({ amount: 4, unit: "USD" })
-        .withRecommendedThresholds({ sns: ref<TopicBuilderResult>("usEast1Alerts").get("topic") })
+        .withRecommendedThresholds({ sns: alertsTopic })
         .recommendedAlarms(false),
 
       // SITE
@@ -233,9 +233,7 @@ export function createSystem(stacks: SystemStacks, options: SystemOptions) {
           scope: "bucket",
         },
         UsEast1AlertsTopicArn: {
-          value: ref<TopicBuilderResult>("usEast1Alerts")
-            .get("topic")
-            .map((t) => t.topicArn),
+          value: alertsTopic.map((t) => t.topicArn),
           description: "Subscribe here to receive alarm notifications.",
           scope: "usEast1Alerts",
         },

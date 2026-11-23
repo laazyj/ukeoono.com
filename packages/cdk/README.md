@@ -45,8 +45,9 @@ Three application stacks plus a standalone CI stack:
 - **`UkeOOnoSiteStack`** (`eu-west-2`) — S3 bucket, CloudFront distribution
   (TLS via the imported us-east-1 ACM cert), CloudFront Function (`www`→apex
   301 + pretty-URL rewrite), bucket deployment of the Eleventy output, a
-  Route 53 health check on the public apex. The cert is referenced with `Certificate.fromCertificateArn(...)` —
-  a plain ARN reference, so no resource and no cross-region plumbing.
+  Route 53 health check on the public apex. The cert is referenced with
+  `Certificate.fromCertificateArn(...)` — a plain ARN reference, so no resource
+  and no cross-region plumbing.
 - **`UkeOOnoUsEast1AlertsStack`** (`us-east-1`) — SNS topic shared by every
   us-east-1 alarm (CloudFront, health check) plus the monthly Budget. No
   downstream deps so any us-east-1 stack can target it without creating a cycle.
