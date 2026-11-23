@@ -63,20 +63,12 @@ constraints.validate.templateText(REDIRECT_FUNCTION_COMMENT, "redirect function 
 const CACHE_CONTROL_FUNCTION_COMMENT = "Cache-Control by file type";
 constraints.validate.templateText(CACHE_CONTROL_FUNCTION_COMMENT, "cache-control function comment");
 
-const topicArnOutput = (refName: "usEast1Alerts" | "siteAlerts", role: string) => ({
-  value: ref<TopicBuilderResult>(refName)
-    .get("topic")
-    .map((t) => t.topicArn),
-  description: `Subscribe here to receive ${role}.`,
-  scope: refName,
-});
-
 export interface SystemOptions {
   /** Apex domain — e.g. `uke-o-ono.com`. `www.{domain}` is computed from it. */
   readonly domain: string;
   /** Directory whose contents are uploaded to the site bucket. */
   readonly siteContentPath: string;
-  /** Email address subscribed to both alarm topics. */
+  /** Email address subscribed to the alarm topic. */
   readonly alertEmail: string;
   /**
    * ARN of a pre-validated ACM certificate (in `us-east-1`) covering the apex
@@ -102,11 +94,11 @@ export interface SystemOptions {
  *  2. **Dependency block** — second arg. Drives topological ordering and
  *     attaches cross-stack references when a dependency lives in another stack.
  *  3. **`.withStacks()` + `.afterBuild()`** — routes each builder to a Stack and
- *     runs post-build wiring (outputs, alarm-action policies).
+ *     runs post-build wiring (outputs, alarm-action policy).
  *
  * Cross-region note: CloudFront/Route53 metrics only emit in `us-east-1`, so
- * those alarms live in `cdnAlarmsStack` and target the standalone `usEast1Alerts`
- * topic (no downstream deps) to keep the graph acyclic.
+ * every alarm lives in `cdnAlarmsStack` and targets the standalone
+ * `usEast1Alerts` topic (no downstream deps) to keep the graph acyclic.
  */
 export function createSystem(stacks: SystemStacks, options: SystemOptions) {
   const { usEast1AlertsStack, siteStack, cdnAlarmsStack } = stacks;
@@ -122,13 +114,13 @@ export function createSystem(stacks: SystemStacks, options: SystemOptions) {
 
   return compose(
     {
-      // CloudWatch alarms can only target same-region SNS topics, so one topic per region.
+      // CloudWatch alarms can only target same-region SNS topics, and every
+      // alarm here is in us-east-1. No recommended alarms on the topic itself:
+      // they fire when it can't deliver, so their email would never arrive.
       usEast1Alerts: createTopicBuilder()
         .displayName(`${domain} us-east-1 alerts`)
-        .addSubscription("email", new EmailSubscription(alertEmail)),
-      siteAlerts: createTopicBuilder()
-        .displayName(`${domain} site alerts`)
-        .addSubscription("email", new EmailSubscription(alertEmail)),
+        .addSubscription("email", new EmailSubscription(alertEmail))
+        .recommendedAlarms(false),
 
       budget: createBudgetBuilder()
         .budgetName(`${domain}-monthly`)
@@ -209,7 +201,6 @@ export function createSystem(stacks: SystemStacks, options: SystemOptions) {
     },
     {
       usEast1Alerts: [],
-      siteAlerts: [],
       budget: ["usEast1Alerts"],
       bucket: [],
       cdn: ["bucket"],
@@ -221,7 +212,6 @@ export function createSystem(stacks: SystemStacks, options: SystemOptions) {
   )
     .withStacks({
       usEast1Alerts: usEast1AlertsStack,
-      siteAlerts: siteStack,
       budget: usEast1AlertsStack,
       bucket: siteStack,
       cdn: siteStack,
@@ -242,19 +232,18 @@ export function createSystem(stacks: SystemStacks, options: SystemOptions) {
           description: "S3 bucket backing the distribution.",
           scope: "bucket",
         },
-        UsEast1AlertsTopicArn: topicArnOutput(
-          "usEast1Alerts",
-          "alarm notifications from every us-east-1 stack",
-        ),
-        SiteAlertsTopicArn: topicArnOutput("siteAlerts", "site-stack alarm notifications"),
+        UsEast1AlertsTopicArn: {
+          value: ref<TopicBuilderResult>("usEast1Alerts")
+            .get("topic")
+            .map((t) => t.topicArn),
+          description: "Subscribe here to receive alarm notifications.",
+          scope: "usEast1Alerts",
+        },
       }),
     )
     .afterBuild((_scope, _id, results) => {
-      const usEast1Action = new SnsAction(results.usEast1Alerts.topic);
-      alarmActionsPolicy(usEast1AlertsStack, { defaults: { alarmActions: [usEast1Action] } });
-      alarmActionsPolicy(cdnAlarmsStack, { defaults: { alarmActions: [usEast1Action] } });
-      alarmActionsPolicy(siteStack, {
-        defaults: { alarmActions: [new SnsAction(results.siteAlerts.topic)] },
+      alarmActionsPolicy(cdnAlarmsStack, {
+        defaults: { alarmActions: [new SnsAction(results.usEast1Alerts.topic)] },
       });
     });
 }
