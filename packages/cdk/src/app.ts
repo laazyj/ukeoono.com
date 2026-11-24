@@ -29,7 +29,7 @@ export interface BuildAppOptions {
   readonly account: string | undefined;
   /** Directory whose contents are uploaded to the site bucket. */
   readonly siteContentPath: string;
-  /** Email address subscribed to the alarm topic. */
+  /** Email address subscribed to both alarm topics. */
   readonly alertEmail: string;
   /** ARN of the pre-validated us-east-1 ACM cert (validated in Cloudflare). */
   readonly certArn: string;
