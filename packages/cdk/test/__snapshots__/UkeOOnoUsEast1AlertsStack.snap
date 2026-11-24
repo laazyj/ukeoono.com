@@ -10,7 +10,7 @@
       },
     },
     "UsEast1AlertsTopicArn": {
-      "Description": "Subscribe here to receive alarm notifications from every us-east-1 stack.",
+      "Description": "Subscribe here to receive alarm notifications.",
       "Value": {
         "Ref": "ukeoonocomusEast1Alerts510483E2",
       },

@@ -10,12 +10,6 @@
         ],
       },
     },
-    "SiteAlertsTopicArn": {
-      "Description": "Subscribe here to receive site-stack alarm notifications.",
-      "Value": {
-        "Ref": "ukeoonocomsiteAlertsB5CA8709",
-      },
-    },
     "SiteBucketName": {
       "Description": "S3 bucket backing the distribution.",
       "Value": {
@@ -896,51 +890,6 @@ function handler(event) {
         },
       },
       "Type": "AWS::Route53::HealthCheck",
-    },
-    "ukeoonocomsiteAlertsB5CA8709": {
-      "Properties": {
-        "DisplayName": "uke-o-ono.com site alerts",
-      },
-      "Type": "AWS::SNS::Topic",
-    },
-    "ukeoonocomsiteAlertsEmailSubscription7EE706C5": {
-      "Properties": {
-        "Endpoint": "alerts@example.invalid",
-        "Protocol": "email",
-        "TopicArn": {
-          "Ref": "ukeoonocomsiteAlertsB5CA8709",
-        },
-      },
-      "Type": "AWS::SNS::Subscription",
-    },
-    "ukeoonocomsiteAlertsPolicy334CEEEF": {
-      "Properties": {
-        "PolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sns:Publish",
-              "Condition": {
-                "Bool": {
-                  "aws:SecureTransport": "false",
-                },
-              },
-              "Effect": "Deny",
-              "Principal": "*",
-              "Resource": {
-                "Ref": "ukeoonocomsiteAlertsB5CA8709",
-              },
-              "Sid": "AllowPublishThroughSSLOnly",
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "Topics": [
-          {
-            "Ref": "ukeoonocomsiteAlertsB5CA8709",
-          },
-        ],
-      },
-      "Type": "AWS::SNS::TopicPolicy",
     },
   },
   "Rules": {
