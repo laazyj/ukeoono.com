@@ -23,8 +23,10 @@ export default function (eleventyConfig) {
   eleventyConfig.addGlobalData("analytics", () => ({
     measurementId: process.env.GA_MEASUREMENT_ID || null,
   }));
+  // <meta name="build-sha">, checked by the post-deploy smoke test. BUILD_SHA
+  // overrides GITHUB_SHA (workflows can't set GITHUB_*); see pr.yml's cdk diff.
   eleventyConfig.addGlobalData("build", () => ({
-    sha: process.env.GITHUB_SHA || "dev",
+    sha: process.env.BUILD_SHA || process.env.GITHUB_SHA || "dev",
   }));
 
   // Convert a root-absolute path ("/assets/x.css") into a path relative to the

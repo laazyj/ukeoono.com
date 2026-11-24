@@ -47,9 +47,9 @@ Three site stacks plus one pipeline stack:
 - **`UkeOOnoSiteStack`** (`eu-west-2`) — S3 bucket, CloudFront distribution
   (TLS via the imported us-east-1 ACM cert), CloudFront Function (`www`→apex
   301 + pretty-URL rewrite), bucket deployment of the Eleventy output, a
-  Route 53 health check on the public apex, and an SNS topic for site-region
-  alarms. The cert is referenced with `Certificate.fromCertificateArn(...)` —
-  a plain ARN reference, so no resource and no cross-region plumbing.
+  Route 53 health check on the public apex. The cert is referenced with
+  `Certificate.fromCertificateArn(...)` — a plain ARN reference, so no resource
+  and no cross-region plumbing.
 - **`UkeOOnoUsEast1AlertsStack`** (`us-east-1`) — SNS topic shared by every
   us-east-1 alarm (CloudFront, health check) plus the monthly Budget. No
   downstream deps so any us-east-1 stack can target it without creating a cycle.
@@ -120,7 +120,7 @@ terminates TLS with the ACM cert and the `www`→apex function runs at the edge.
 Pushes to `main` deploy automatically (see [Continuous deployment](#continuous-deployment)).
 The manual flow is the fallback for first-time bootstrap or emergencies.
 
-Required env: `ALERT_EMAIL` (subscribed to both alarm topics) and `CERT_ARN`
+Required env: `ALERT_EMAIL` (subscribed to the alarm topic) and `CERT_ARN`
 (the issued us-east-1 cert ARN). Synth fails if either is unset. Authenticate to
 the account first (`aws sso login`), then:
 
@@ -132,9 +132,9 @@ npm run cdk:diff     # preview changes
 npm run cdk:deploy   # apply (all stacks)
 ```
 
-After the first deploy, AWS sends one SNS confirmation email per topic
-(us-east-1 and eu-west-2 / site). Click both confirm links — alerts only flow
-once the subscriptions are `Confirmed`.
+After the first deploy, AWS sends an SNS confirmation email for the us-east-1
+alerts topic. Click the confirm link — alerts only flow once the subscription
+is `Confirmed`.
 
 ### First-time setup
 
@@ -163,7 +163,10 @@ Run from the repo root (each runs the cdk + site build first via Nx):
 Connect (no long-lived keys):
 
 - **`.github/workflows/pr.yml`** — on every PR: lint, format, build, test, plus
-  `cdk diff` posted as a comment.
+  `cdk diff` posted as a comment. The diff builds the site with the base
+  commit's SHA in its `build-sha` tag (`BUILD_SHA`), so a PR that doesn't change
+  the site shows no change to `UkeOOnoSiteStack` (as long as that base commit is
+  what's deployed).
 - **`.github/workflows/deploy.yml`** — on push to `main`: verify, fresh
   `site:build` (with `GITHUB_SHA` in a `<meta name="build-sha">` tag),
   `cdk deploy --all`, and the smoke test.
