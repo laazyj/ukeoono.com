@@ -63,20 +63,12 @@ constraints.validate.templateText(REDIRECT_FUNCTION_COMMENT, "redirect function 
 const CACHE_CONTROL_FUNCTION_COMMENT = "Cache-Control by file type";
 constraints.validate.templateText(CACHE_CONTROL_FUNCTION_COMMENT, "cache-control function comment");
 
-const topicArnOutput = (refName: "usEast1Alerts" | "siteAlerts", role: string) => ({
-  value: ref<TopicBuilderResult>(refName)
-    .get("topic")
-    .map((t) => t.topicArn),
-  description: `Subscribe here to receive ${role}.`,
-  scope: refName,
-});
-
 export interface SystemOptions {
   /** Apex domain — e.g. `uke-o-ono.com`. `www.{domain}` is computed from it. */
   readonly domain: string;
   /** Directory whose contents are uploaded to the site bucket. */
   readonly siteContentPath: string;
-  /** Email address subscribed to both alarm topics. */
+  /** Email address subscribed to the alarm topic. */
   readonly alertEmail: string;
   /**
    * ARN of a pre-validated ACM certificate (in `us-east-1`) covering the apex
@@ -105,8 +97,8 @@ export interface SystemOptions {
  *     adds the stack outputs.
  *
  * Cross-region note: CloudFront/Route53 metrics only emit in `us-east-1`, so
- * those alarms live in `cdnAlarmsStack` and target the standalone `usEast1Alerts`
- * topic (no downstream deps) to keep the graph acyclic.
+ * every alarm lives in `cdnAlarmsStack` and targets the standalone
+ * `usEast1Alerts` topic (no downstream deps) to keep the graph acyclic.
  */
 export function createSystem(stacks: SystemStacks, options: SystemOptions) {
   const { usEast1AlertsStack, siteStack, cdnAlarmsStack } = stacks;
@@ -115,6 +107,7 @@ export function createSystem(stacks: SystemStacks, options: SystemOptions) {
 
   const bucket = ref<BucketBuilderResult>("bucket").get("bucket");
   const distribution = ref<DistributionBuilderResult>("cdn").get("distribution");
+  const alertsTopic = ref<TopicBuilderResult>("usEast1Alerts").get("topic");
   // Imported, not created: the cert is validated in Cloudflare and referenced by
   // ARN. fromCertificateArn is a plain reference (no resource, no cross-stack
   // ref); CloudFront requires the ARN to be us-east-1, which it must already be.
@@ -122,18 +115,17 @@ export function createSystem(stacks: SystemStacks, options: SystemOptions) {
 
   return compose(
     {
-      // CloudWatch alarms can only target same-region SNS topics, so one topic per region.
+      // No recommended alarms on the topic itself: they fire when it can't
+      // deliver, so their email would never arrive.
       usEast1Alerts: createTopicBuilder()
         .displayName(`${domain} us-east-1 alerts`)
-        .addSubscription("email", new EmailSubscription(alertEmail)),
-      siteAlerts: createTopicBuilder()
-        .displayName(`${domain} site alerts`)
-        .addSubscription("email", new EmailSubscription(alertEmail)),
+        .addSubscription("email", new EmailSubscription(alertEmail))
+        .recommendedAlarms(false),
 
       budget: createBudgetBuilder()
         .budgetName(`${domain}-monthly`)
         .limit({ amount: 4, unit: "USD" })
-        .withRecommendedThresholds({ sns: ref<TopicBuilderResult>("usEast1Alerts").get("topic") })
+        .withRecommendedThresholds({ sns: alertsTopic })
         // The budget's own threshold notifications already reach usEast1Alerts;
         // an EstimatedCharges CloudWatch alarm on top would only duplicate them.
         .recommendedAlarms(false),
@@ -213,7 +205,6 @@ export function createSystem(stacks: SystemStacks, options: SystemOptions) {
     },
     {
       usEast1Alerts: [],
-      siteAlerts: [],
       budget: ["usEast1Alerts"],
       bucket: [],
       cdn: ["bucket"],
@@ -225,7 +216,6 @@ export function createSystem(stacks: SystemStacks, options: SystemOptions) {
   )
     .withStacks({
       usEast1Alerts: usEast1AlertsStack,
-      siteAlerts: siteStack,
       budget: usEast1AlertsStack,
       bucket: siteStack,
       cdn: siteStack,
@@ -246,31 +236,27 @@ export function createSystem(stacks: SystemStacks, options: SystemOptions) {
           description: "S3 bucket backing the distribution.",
           scope: "bucket",
         },
-        UsEast1AlertsTopicArn: topicArnOutput(
-          "usEast1Alerts",
-          "alarm notifications from every us-east-1 stack",
-        ),
-        SiteAlertsTopicArn: topicArnOutput("siteAlerts", "site-stack alarm notifications"),
+        UsEast1AlertsTopicArn: {
+          value: alertsTopic.map((t) => t.topicArn),
+          description: "Subscribe here to receive alarm notifications.",
+          scope: "usEast1Alerts",
+        },
       }),
     );
 }
 
 /**
- * Sends every alarm to its region's topic: the us-east-1 stacks to
- * `usEast1Alerts`, the site stack to `siteAlerts` (CloudWatch alarms can only
- * target same-region topics). App-level policy rather than an `afterBuild` hook
- * (composureCDK#784 §0/§1e): each call registers an Aspect, so it reaches every
- * alarm in its stack, however late that alarm is created.
+ * Sends every alarm to `usEast1Alerts`. All of them live in `cdnAlarmsStack`,
+ * because the metrics they watch only emit in us-east-1, and CloudWatch alarms
+ * can only target same-region topics. App-level policy rather than an
+ * `afterBuild` hook (composureCDK#784 §0/§1e): the call registers an Aspect,
+ * so it reaches every alarm in the stack, however late that alarm is created.
  */
 export function applyAlarmActions(
   stacks: SystemStacks,
-  topics: Record<"usEast1Alerts" | "siteAlerts", TopicBuilderResult>,
+  topics: Record<"usEast1Alerts", TopicBuilderResult>,
 ): void {
-  const usEast1Action = new SnsAction(topics.usEast1Alerts.topic);
-  for (const stack of [stacks.usEast1AlertsStack, stacks.cdnAlarmsStack]) {
-    alarmActionsPolicy(stack, { defaults: { alarmActions: [usEast1Action] } });
-  }
-  alarmActionsPolicy(stacks.siteStack, {
-    defaults: { alarmActions: [new SnsAction(topics.siteAlerts.topic)] },
+  alarmActionsPolicy(stacks.cdnAlarmsStack, {
+    defaults: { alarmActions: [new SnsAction(topics.usEast1Alerts.topic)] },
   });
 }
