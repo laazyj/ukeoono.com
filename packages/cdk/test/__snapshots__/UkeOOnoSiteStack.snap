@@ -10,12 +10,6 @@
         ],
       },
     },
-    "SiteAlertsTopicArn": {
-      "Description": "Subscribe here to receive site-stack alarm notifications.",
-      "Value": {
-        "Ref": "ukeoonocomsiteAlertsB5CA8709",
-      },
-    },
     "SiteBucketName": {
       "Description": "S3 bucket backing the distribution.",
       "Value": {
@@ -349,7 +343,6 @@
     "ukeoonocombucketAccessLogs28AAD960": {
       "DeletionPolicy": "Retain",
       "Properties": {
-        "AccessControl": "LogDeliveryWrite",
         "BucketEncryption": {
           "ServerSideEncryptionConfiguration": [
             {
@@ -370,7 +363,7 @@
         "OwnershipControls": {
           "Rules": [
             {
-              "ObjectOwnership": "ObjectWriter",
+              "ObjectOwnership": "BucketOwnerEnforced",
             },
           ],
         },
@@ -424,6 +417,40 @@
                   ],
                 },
               ],
+            },
+            {
+              "Action": "s3:PutObject",
+              "Condition": {
+                "ArnLike": {
+                  "aws:SourceArn": {
+                    "Fn::GetAtt": [
+                      "ukeoonocombucket7278B393",
+                      "Arn",
+                    ],
+                  },
+                },
+                "StringEquals": {
+                  "aws:SourceAccount": "111111111111",
+                },
+              },
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "logging.s3.amazonaws.com",
+              },
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    {
+                      "Fn::GetAtt": [
+                        "ukeoonocombucketAccessLogs28AAD960",
+                        "Arn",
+                      ],
+                    },
+                    "/logs/*",
+                  ],
+                ],
+              },
             },
           ],
           "Version": "2012-10-17",
@@ -863,115 +890,6 @@ function handler(event) {
         },
       },
       "Type": "AWS::Route53::HealthCheck",
-    },
-    "ukeoonocomsiteAlertsB5CA8709": {
-      "Properties": {
-        "DisplayName": "uke-o-ono.com site alerts",
-      },
-      "Type": "AWS::SNS::Topic",
-    },
-    "ukeoonocomsiteAlertsEmailSubscription7EE706C5": {
-      "Properties": {
-        "Endpoint": "alerts@example.invalid",
-        "Protocol": "email",
-        "TopicArn": {
-          "Ref": "ukeoonocomsiteAlertsB5CA8709",
-        },
-      },
-      "Type": "AWS::SNS::Subscription",
-    },
-    "ukeoonocomsiteAlertsNumberOfNotificationsFailedAlarm10146728": {
-      "Properties": {
-        "AlarmActions": [
-          {
-            "Ref": "ukeoonocomsiteAlertsB5CA8709",
-          },
-        ],
-        "AlarmDescription": "SNS topic is failing to deliver notifications. Threshold: > 0 failures in 1 minute.",
-        "AlarmName": "uke-o-ono-site-stack/uke-o-ono-com/site-alerts/number-of-notifications-failed",
-        "ComparisonOperator": "GreaterThanThreshold",
-        "DatapointsToAlarm": 1,
-        "Dimensions": [
-          {
-            "Name": "TopicName",
-            "Value": {
-              "Fn::GetAtt": [
-                "ukeoonocomsiteAlertsB5CA8709",
-                "TopicName",
-              ],
-            },
-          },
-        ],
-        "EvaluationPeriods": 1,
-        "MetricName": "NumberOfNotificationsFailed",
-        "Namespace": "AWS/SNS",
-        "Period": 60,
-        "Statistic": "Sum",
-        "Threshold": 0,
-        "TreatMissingData": "notBreaching",
-      },
-      "Type": "AWS::CloudWatch::Alarm",
-    },
-    "ukeoonocomsiteAlertsNumberOfNotificationsFilteredOutInvalidAttributesAlarm03211C4D": {
-      "Properties": {
-        "AlarmActions": [
-          {
-            "Ref": "ukeoonocomsiteAlertsB5CA8709",
-          },
-        ],
-        "AlarmDescription": "SNS topic messages are being filtered out due to invalid subscription filter policy attributes. Threshold: > 0 filtered messages in 1 minute.",
-        "AlarmName": "uke-o-ono-site-stack/uke-o-ono-com/site-alerts/number-of-notifications-filtered-out-invalid-attributes",
-        "ComparisonOperator": "GreaterThanThreshold",
-        "DatapointsToAlarm": 1,
-        "Dimensions": [
-          {
-            "Name": "TopicName",
-            "Value": {
-              "Fn::GetAtt": [
-                "ukeoonocomsiteAlertsB5CA8709",
-                "TopicName",
-              ],
-            },
-          },
-        ],
-        "EvaluationPeriods": 1,
-        "MetricName": "NumberOfNotificationsFilteredOut-InvalidAttributes",
-        "Namespace": "AWS/SNS",
-        "Period": 60,
-        "Statistic": "Sum",
-        "Threshold": 0,
-        "TreatMissingData": "notBreaching",
-      },
-      "Type": "AWS::CloudWatch::Alarm",
-    },
-    "ukeoonocomsiteAlertsPolicy334CEEEF": {
-      "Properties": {
-        "PolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sns:Publish",
-              "Condition": {
-                "Bool": {
-                  "aws:SecureTransport": "false",
-                },
-              },
-              "Effect": "Deny",
-              "Principal": "*",
-              "Resource": {
-                "Ref": "ukeoonocomsiteAlertsB5CA8709",
-              },
-              "Sid": "AllowPublishThroughSSLOnly",
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "Topics": [
-          {
-            "Ref": "ukeoonocomsiteAlertsB5CA8709",
-          },
-        ],
-      },
-      "Type": "AWS::SNS::TopicPolicy",
     },
   },
   "Rules": {

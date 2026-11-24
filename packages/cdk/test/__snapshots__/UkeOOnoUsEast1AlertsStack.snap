@@ -10,7 +10,7 @@
       },
     },
     "UsEast1AlertsTopicArn": {
-      "Description": "Subscribe here to receive alarm notifications from every us-east-1 stack.",
+      "Description": "Subscribe here to receive alarm notifications.",
       "Value": {
         "Ref": "ukeoonocomusEast1Alerts510483E2",
       },
@@ -87,70 +87,6 @@
         },
       },
       "Type": "AWS::SNS::Subscription",
-    },
-    "ukeoonocomusEast1AlertsNumberOfNotificationsFailedAlarm68D74771": {
-      "Properties": {
-        "AlarmActions": [
-          {
-            "Ref": "ukeoonocomusEast1Alerts510483E2",
-          },
-        ],
-        "AlarmDescription": "SNS topic is failing to deliver notifications. Threshold: > 0 failures in 1 minute.",
-        "AlarmName": "uke-o-ono-us-east1-alerts-stack/uke-o-ono-com/us-east1-alerts/number-of-notifications-failed",
-        "ComparisonOperator": "GreaterThanThreshold",
-        "DatapointsToAlarm": 1,
-        "Dimensions": [
-          {
-            "Name": "TopicName",
-            "Value": {
-              "Fn::GetAtt": [
-                "ukeoonocomusEast1Alerts510483E2",
-                "TopicName",
-              ],
-            },
-          },
-        ],
-        "EvaluationPeriods": 1,
-        "MetricName": "NumberOfNotificationsFailed",
-        "Namespace": "AWS/SNS",
-        "Period": 60,
-        "Statistic": "Sum",
-        "Threshold": 0,
-        "TreatMissingData": "notBreaching",
-      },
-      "Type": "AWS::CloudWatch::Alarm",
-    },
-    "ukeoonocomusEast1AlertsNumberOfNotificationsFilteredOutInvalidAttributesAlarmEACD3DD3": {
-      "Properties": {
-        "AlarmActions": [
-          {
-            "Ref": "ukeoonocomusEast1Alerts510483E2",
-          },
-        ],
-        "AlarmDescription": "SNS topic messages are being filtered out due to invalid subscription filter policy attributes. Threshold: > 0 filtered messages in 1 minute.",
-        "AlarmName": "uke-o-ono-us-east1-alerts-stack/uke-o-ono-com/us-east1-alerts/number-of-notifications-filtered-out-invalid-attributes",
-        "ComparisonOperator": "GreaterThanThreshold",
-        "DatapointsToAlarm": 1,
-        "Dimensions": [
-          {
-            "Name": "TopicName",
-            "Value": {
-              "Fn::GetAtt": [
-                "ukeoonocomusEast1Alerts510483E2",
-                "TopicName",
-              ],
-            },
-          },
-        ],
-        "EvaluationPeriods": 1,
-        "MetricName": "NumberOfNotificationsFilteredOut-InvalidAttributes",
-        "Namespace": "AWS/SNS",
-        "Period": 60,
-        "Statistic": "Sum",
-        "Threshold": 0,
-        "TreatMissingData": "notBreaching",
-      },
-      "Type": "AWS::CloudWatch::Alarm",
     },
     "ukeoonocomusEast1AlertsPolicy43820D80": {
       "Properties": {
