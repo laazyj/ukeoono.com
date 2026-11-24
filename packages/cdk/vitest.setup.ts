@@ -1,4 +1,17 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { expect } from "vitest";
+
+// Synthesise under the same feature flags the cdk CLI uses: it hands
+// cdk.json's context to the app through CDK_CONTEXT_JSON, which every `App`
+// reads, so tests do the same from the same file.
+process.env.CDK_CONTEXT_JSON = JSON.stringify(
+  (
+    JSON.parse(readFileSync(resolve(import.meta.dirname, "cdk.json"), "utf8")) as {
+      context: Record<string, unknown>;
+    }
+  ).context,
+);
 
 // CDK addresses its bundled assets by content hash, and every such hash is a
 // 64-char hex SHA-256. Three kinds show up in our synthesised templates:

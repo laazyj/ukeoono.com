@@ -94,7 +94,7 @@ export interface SystemOptions {
  *  2. **Dependency block** — second arg. Drives topological ordering and
  *     attaches cross-stack references when a dependency lives in another stack.
  *  3. **`.withStacks()` + `.afterBuild()`** — routes each builder to a Stack and
- *     runs post-build wiring (outputs, alarm-action policy).
+ *     adds the stack outputs.
  *
  * Cross-region note: CloudFront/Route53 metrics only emit in `us-east-1`, so
  * every alarm lives in `cdnAlarmsStack` and targets the standalone
@@ -126,6 +126,8 @@ export function createSystem(stacks: SystemStacks, options: SystemOptions) {
         .budgetName(`${domain}-monthly`)
         .limit({ amount: 4, unit: "USD" })
         .withRecommendedThresholds({ sns: alertsTopic })
+        // The budget's own threshold notifications already reach usEast1Alerts;
+        // an EstimatedCharges CloudWatch alarm on top would only duplicate them.
         .recommendedAlarms(false),
 
       // SITE
@@ -187,6 +189,8 @@ export function createSystem(stacks: SystemStacks, options: SystemOptions) {
       healthCheck: createHealthCheckBuilder()
         .type(HealthCheckType.HTTPS)
         .fqdn(domain)
+        // AWS/Route53 metrics emit only in us-east-1, so these alarms would never
+        // fire from siteStack; healthCheckAlarms builds them in cdnAlarmsStack.
         .recommendedAlarms(false),
       healthCheckAlarms: createHealthCheckAlarmBuilder().healthCheck(
         ref<HealthCheckBuilderResult>("healthCheck"),
@@ -238,10 +242,21 @@ export function createSystem(stacks: SystemStacks, options: SystemOptions) {
           scope: "usEast1Alerts",
         },
       }),
-    )
-    .afterBuild((_scope, _id, results) => {
-      alarmActionsPolicy(cdnAlarmsStack, {
-        defaults: { alarmActions: [new SnsAction(results.usEast1Alerts.topic)] },
-      });
-    });
+    );
+}
+
+/**
+ * Sends every alarm to `usEast1Alerts`. All of them live in `cdnAlarmsStack`,
+ * because the metrics they watch only emit in us-east-1, and CloudWatch alarms
+ * can only target same-region topics. App-level policy rather than an
+ * `afterBuild` hook (composureCDK#784 §0/§1e): the call registers an Aspect,
+ * so it reaches every alarm in the stack, however late that alarm is created.
+ */
+export function applyAlarmActions(
+  stacks: SystemStacks,
+  topics: Record<"usEast1Alerts", TopicBuilderResult>,
+): void {
+  alarmActionsPolicy(stacks.cdnAlarmsStack, {
+    defaults: { alarmActions: [new SnsAction(topics.usEast1Alerts.topic)] },
+  });
 }

@@ -6,7 +6,7 @@ import { templateTextPolicy } from "@composurecdk/cloudformation";
 import { topicPolicyConflictPolicy } from "@composurecdk/sns";
 
 import { addCiOidc } from "./stacks/ci-oidc-stack.js";
-import { createSystem } from "./system.js";
+import { applyAlarmActions, createSystem } from "./system.js";
 
 /**
  * Edit-points for forking this app to a different domain. Everything domain-
@@ -25,8 +25,8 @@ const CONFIG = {
 } as const;
 
 export interface BuildAppOptions {
-  /** AWS account ID. `undefined` produces an env-agnostic synth (cdk's default). */
-  readonly account: string | undefined;
+  /** AWS account ID. Required, so every stack has an explicit environment. */
+  readonly account: string;
   /** Directory whose contents are uploaded to the site bucket. */
   readonly siteContentPath: string;
   /** Email address subscribed to the alarm topic. */
@@ -86,10 +86,14 @@ export function buildApp({ account, siteContentPath, alertEmail, certArn }: Buil
   });
   addCiOidc(ciOidcStack, { githubOwner: "laazyj", githubRepo: "ukeoono.com" });
 
-  createSystem(
-    { usEast1AlertsStack, siteStack, cdnAlarmsStack },
-    { domain: CONFIG.domain, siteContentPath, alertEmail, certArn },
-  ).build(app, CONFIG.domain);
+  const siteStacks = { usEast1AlertsStack, siteStack, cdnAlarmsStack };
+  const site = createSystem(siteStacks, {
+    domain: CONFIG.domain,
+    siteContentPath,
+    alertEmail,
+    certArn,
+  }).build(app, CONFIG.domain);
+  applyAlarmActions(siteStacks, site);
 
   return app;
 }
@@ -97,20 +101,17 @@ export function buildApp({ account, siteContentPath, alertEmail, certArn }: Buil
 // Synth only when invoked as the cdk app entry. Importing from tests doesn't
 // trigger synth — keeps the wiring in one file without side-effecting on import.
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
-  const alertEmail = process.env.ALERT_EMAIL;
-  if (!alertEmail) {
-    throw new Error("ALERT_EMAIL is required, e.g. `export ALERT_EMAIL=you@example.com`.");
-  }
-  const certArn = process.env.CERT_ARN;
-  if (!certArn) {
-    throw new Error(
-      "CERT_ARN is required — the ARN of the us-east-1 ACM cert (validated in Cloudflare).",
-    );
-  }
+  const requireEnv = (name: string, hint: string): string => {
+    const value = process.env[name];
+    if (!value) throw new Error(`${name} is required: ${hint}`);
+    return value;
+  };
   buildApp({
-    account: process.env.CDK_DEFAULT_ACCOUNT,
+    // The cdk CLI sets this from the active credentials. Fail here rather than
+    // silently synthesise an env-agnostic app nobody intended to deploy.
+    account: requireEnv("CDK_DEFAULT_ACCOUNT", "log in to the target account first."),
     siteContentPath: resolve(import.meta.dirname, "..", "..", "site", "dist"),
-    alertEmail,
-    certArn,
+    alertEmail: requireEnv("ALERT_EMAIL", "e.g. `export ALERT_EMAIL=you@example.com`."),
+    certArn: requireEnv("CERT_ARN", "the ARN of the us-east-1 ACM cert (validated in Cloudflare)."),
   }).synth();
 }
