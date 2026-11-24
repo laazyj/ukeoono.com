@@ -159,7 +159,10 @@ Run from the repo root (each runs the cdk + site build first via Nx):
 Connect (no long-lived keys):
 
 - **`.github/workflows/pr.yml`** — on every PR: lint, format, build, test, plus
-  `cdk diff` posted as a comment.
+  `cdk diff` posted as a comment. The diff builds the site with the base
+  commit's SHA in its `build-sha` tag (`BUILD_SHA`), so a PR that doesn't change
+  the site shows no change to `UkeOOnoSiteStack` (as long as that base commit is
+  what's deployed).
 - **`.github/workflows/deploy.yml`** — on push to `main`: verify, fresh
   `site:build` (with `GITHUB_SHA` in a `<meta name="build-sha">` tag),
   `cdk deploy --all`, and the smoke test.
