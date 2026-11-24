@@ -9,20 +9,22 @@ no Route 53 hosted zone. The TLS certificate is validated by hand in Cloudflare
 and **imported by ARN**, and the apex / `www` records are CNAMEs in Cloudflare
 pointing at the CloudFront distribution. See [DNS & certificate](#dns--certificate).
 
-Built with [composureCDK](https://github.com/laazyj/composureCDK): the
-application stacks are wired declaratively as one composed system in
-[`src/system.ts`](./src/system.ts) and deploy together with `cdk deploy --all`.
+Built with [composureCDK](https://github.com/laazyj/composureCDK): the app is
+one `compose(...)` in [`src/app.ts`](./src/app.ts) with two sibling systems,
+the **site** ([`src/system.ts`](./src/system.ts)) and the **pipeline** that
+deploys it ([`src/pipeline.ts`](./src/pipeline.ts)). Every stack deploys
+together with `cdk deploy --all`.
 
 ## File map
 
-| File                                                           | Role                                                                                                                                                        |
-| -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`src/app.ts`](./src/app.ts)                                   | Entry point. Builds the `App`, the three application stacks, and the standalone CI OIDC stack. The top-of-file `CONFIG` block holds the domain and regions. |
-| [`src/system.ts`](./src/system.ts)                             | The composition root — the `compose(...)` call that wires every builder.                                                                                    |
-| [`src/stacks/ci-oidc-stack.ts`](./src/stacks/ci-oidc-stack.ts) | Standalone OIDC provider + `GitHubActionsDeployRole` assumed by `.github/workflows/`.                                                                       |
-| [`src/redirect-function.ts`](./src/redirect-function.ts)       | The CloudFront viewer-request function source: `www`→apex 301 + pretty-URL → `index.html` rewrite. Only the string between the backticks ships to the edge. |
-| [`scripts/`](./scripts/)                                       | Post-deploy operational scripts: the live-site smoke test.                                                                                                  |
-| [`test/`](./test/)                                             | Vitest snapshot tests + functional assertions. Snapshots are committed and reviewed in PRs.                                                                 |
+| File                                                     | Role                                                                                                                                                                     |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [`src/app.ts`](./src/app.ts)                             | Entry point. Builds the `App` and its four stacks, then composes the site and pipeline systems as siblings. The top-of-file `CONFIG` block holds the domain and regions. |
+| [`src/system.ts`](./src/system.ts)                       | The site system: the `compose(...)` call that wires every site builder.                                                                                                  |
+| [`src/pipeline.ts`](./src/pipeline.ts)                   | The pipeline system: the GitHub OIDC provider + `GitHubActionsDeployRole` assumed by `.github/workflows/`.                                                               |
+| [`src/redirect-function.ts`](./src/redirect-function.ts) | The CloudFront viewer-request function source: `www`→apex 301 + pretty-URL → `index.html` rewrite. Only the string between the backticks ships to the edge.              |
+| [`scripts/`](./scripts/)                                 | Post-deploy operational scripts: the live-site smoke test.                                                                                                               |
+| [`test/`](./test/)                                       | Vitest snapshot tests + functional assertions. Snapshots are committed and reviewed in PRs.                                                                              |
 
 ## Stack architecture
 
@@ -35,12 +37,12 @@ Same-region edge (us-east-1):
 
   UsEast1AlertsStack ── alarm actions ──▶ CdnAlarmsStack
 
-Standalone (no edges to the application stacks):
+Pipeline (a sibling system, no edges to the site):
 
-  CiOidcStack
+  UkeOOnoCiOidcStack
 ```
 
-Three application stacks plus a standalone CI stack:
+Three site stacks plus one pipeline stack:
 
 - **`UkeOOnoSiteStack`** (`eu-west-2`) — S3 bucket, CloudFront distribution
   (TLS via the imported us-east-1 ACM cert), CloudFront Function (`www`→apex
@@ -56,7 +58,9 @@ Three application stacks plus a standalone CI stack:
   `us-east-1`, so the alarms must live there too (this is the only reason the
   app still spans two regions).
 - **`UkeOOnoCiOidcStack`** (`eu-west-2`) — GitHub OIDC provider and the
-  `GitHubActionsDeployRole`. Standalone; deployed once from a workstation.
+  `GitHubActionsDeployRole`. Built by the pipeline system; deployed once from a
+  workstation, after which CI deploys everything as that role. Neither resource
+  may be replaced (see [`src/pipeline.ts`](./src/pipeline.ts)).
 
 Every stack opts in to `crossRegionReferences: true` for the single
 `SiteStack → CdnAlarmsStack` edge; deployment order is inferred from the
