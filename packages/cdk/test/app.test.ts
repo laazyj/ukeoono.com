@@ -3,12 +3,20 @@ import { Match, Template } from "aws-cdk-lib/assertions";
 import { resolve } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
 
-import { buildApp } from "../src/app.js";
+import { buildApp, type BuildAppOptions } from "../src/app.js";
 
 // A fixed dummy ARN so snapshots stay stable; shape matches a real us-east-1
 // ACM cert ARN (the kind you'd validate in Cloudflare and import).
 const CERT_ARN =
   "arn:aws:acm:us-east-1:111111111111:certificate/11111111-1111-1111-1111-111111111111";
+
+// One set of pinned inputs for every synth in this file.
+const APP_OPTIONS: BuildAppOptions = {
+  account: "111111111111",
+  siteContentPath: resolve(import.meta.dirname, "fixtures", "site"),
+  alertEmail: "alerts@example.invalid",
+  certArn: CERT_ARN,
+};
 
 const STACK_NAMES = [
   "UkeOOnoUsEast1AlertsStack",
@@ -28,12 +36,7 @@ describe("app synthesis", () => {
   let templates: Record<(typeof STACK_NAMES)[number], unknown>;
 
   beforeAll(() => {
-    app = buildApp({
-      account: "111111111111",
-      siteContentPath: resolve(import.meta.dirname, "fixtures", "site"),
-      alertEmail: "alerts@example.invalid",
-      certArn: CERT_ARN,
-    });
+    app = buildApp(APP_OPTIONS);
     templates = Object.fromEntries(
       STACK_NAMES.map((name) => [name, stackTemplate(app, name).toJSON()]),
     ) as typeof templates;
@@ -122,12 +125,7 @@ describe("app synthesis", () => {
   // is what keeps `cdk diff` quiet on stacks nobody touched.
   describe("template text policy", () => {
     it("fails synth on a character CloudFormation cannot store", () => {
-      const policed = buildApp({
-        account: "111111111111",
-        siteContentPath: resolve(import.meta.dirname, "fixtures", "site"),
-        alertEmail: "alerts@example.invalid",
-        certArn: CERT_ARN,
-      });
+      const policed = buildApp(APP_OPTIONS);
       const stack = policed.node.findChild("UkeOOnoSiteStack") as Stack;
       new CfnOutput(stack, "EmDash", { value: "x", description: "an em-dash — here" });
 
